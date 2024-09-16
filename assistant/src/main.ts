@@ -2,48 +2,36 @@ import OpenAI from 'openai';
 // @ts-ignore
 import * as recorder from 'node-record-lpcm16';
 import { PassThrough } from 'stream';
-
-//const apiKey = 'your-api-key'; // Replace with your actual API key
-//const openai = new OpenAI({ apiKey });
+import { createWriteStream } from 'fs';
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function main() {
-  // Create a stream to pass audio data
-  const audioStream = new PassThrough();
-
-  // To accumulate the size of the audio data
-  let totalBytes = 0;
-
-  // Listen to the 'data' event to track audio data flow
-  audioStream.on('data', (chunk) => {
-    totalBytes += chunk.length;
-    console.log(
-      `Received ${chunk.length} bytes of audio data. Total: ${totalBytes} bytes`,
-    );
-  });
+  const file = createWriteStream('test.wav', { encoding: 'binary' });
 
   // Start recording audio and pipe it to the stream
-  const recording = recorder
-    .start({
-      sampleRateHertz: 16000,
-      threshold: 0.5, // Silence threshold (between 0 and 1)
-      verbose: true,
-      recordProgram: 'arecord', // Using arecord for ALSA
+  const recording = recorder.record({
+    device: 'hw:1,0',
+    recorder: 'arecord', // Using arecord for ALSA
+  });
+
+  recording
+    .stream()
+    .on('error', (err: any) => {
+      console.error('recorder threw an error:', err);
     })
-    .pipe(audioStream);
+    .pipe(file);
 
   console.log('Recording started...');
 
-  await wait(10000); // Wait for 10 seconds
+  await wait(5000); // Wait for 5 seconds
 
   // Stop recording audio
-  recorder.stop();
+  recording.stop();
 
   console.log('Recording stopped.');
-  console.log(`Total audio data captured: ${totalBytes} bytes`);
 }
 
 main();

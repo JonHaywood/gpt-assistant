@@ -24,8 +24,10 @@ RUN /bin/bash -c "yes | add-apt-repository universe && \
     nodejs libc6:armhf libdbus-1-3:armhf libasound2:armhf && rm -rf /var/lib/apt/lists/*"
 
 # Install pnpm
-RUN apt-get update && apt-get install -y curl \
-    && curl -fsSL https://get.pnpm.io/install.sh | sh -
+RUN curl -fsSL https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+
+# Update PATH for the current layer
+ENV PATH="/.local/share/pnpm:$PATH"
 
 # Set the working directory in the container
 WORKDIR /app
@@ -34,7 +36,7 @@ WORKDIR /app
 COPY . /app
 
 # Install dependencies using pnpm
-RUN pnpm install
+#RUN pnpm install
 
 # Run any necessary commands on container startup (optional)
 # The CMD is not necessary if you are specifying the command in docker-compose.yml
