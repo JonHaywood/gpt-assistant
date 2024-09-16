@@ -1,0 +1,23 @@
+version: '3' # Specifies the version of the Docker Compose file format
+
+services:
+  gpt_assistant:
+    build: . # Builds the Docker image using the Dockerfile in the current directory
+    restart: unless-stopped
+    privileged: true
+    network_mode: host # Uses the host network stack for the container
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ~/gpt-assistant:/app # Mounts the local directory ~/gpt-assistant to /app in the container
+      - /etc/asound.conf:/etc/asound.conf # Audio config needed for audio to work
+      - /dev/snd:/dev/snd # Hardware that needs to be mounted for audio to work
+      - /dev/shm:/dev/shm # Hardware that needs to be mounted for audio to work
+      - /usr/share/alsa:/usr/share/alsa # alsa is for handling audio in Linux
+      - /var/run/dbus:/var/run/dbus # allows programs on the same machine to communicate with each other
+    tmpfs:
+      - /run # Used to store temporary files that are deleted on reboot
+      - /run/lock # Used for preventing concurrent access to resources
+    stdin_open: true # Allows you to start an interactive session with the container
+    tty: true # Allows terminal interaction
+    command: bash # Overrides the default command and runs the bash shell
