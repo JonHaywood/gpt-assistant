@@ -18,16 +18,15 @@ RUN /bin/bash -c "yes | add-apt-repository universe && \
     build-essential curl git libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
     libsqlite3-dev llvm libncursesw5-dev xz-utils tk-dev libraspberrypi-bin \
     libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libjpeg-dev \
-    portaudio19-dev alsa-utils libasound2-dev i2c-tools \
-    python3 python3-pip python3-dev \
+    portaudio19-dev alsa-utils libasound2-dev i2c-tools python3 \
     jackd2 libogg0 libflac-dev flac libespeak1 cmake openssl expect \
-    nodejs libc6:armhf libdbus-1-3:armhf libasound2:armhf && rm -rf /var/lib/apt/lists/*"
+    nodejs npm libc6:armhf libdbus-1-3:armhf libasound2:armhf && rm -rf /var/lib/apt/lists/*"
 
 # Install pnpm
-RUN curl -fsSL https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+RUN curl -fsSL https://get.pnpm.io/install.sh | bash -
 
 # Update PATH for the current layer
-ENV PATH="/.local/share/pnpm:$PATH"
+ENV PATH="/root/.local/share/pnpm:$PATH"
 
 # Set the working directory in the container
 WORKDIR /app
@@ -36,7 +35,7 @@ WORKDIR /app
 COPY . /app
 
 # Install dependencies using pnpm
-#RUN pnpm install
+RUN pnpm install
 
 # Run any necessary commands on container startup (optional)
 # The CMD is not necessary if you are specifying the command in docker-compose.yml
