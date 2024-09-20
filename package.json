@@ -1,0 +1,6 @@
+{
+    "workspaces": [
+        "assistant",
+        "app"
+    ]
+}
