@@ -23,8 +23,8 @@ const DEFAULT_AUDIO_SETTINGS = {
 const SAMPLE_RATE = 16000; // typical sample rate for speech recognition is 16kHz
 const IGNORED_EXIT_CODES = [1, null]; // known exit codes to ignore
 
-// Voice Activity Detection library
-const vad = new VAD(VAD.Mode.NORMAL); // VAD instance
+// Voice Activity Detection library, used to detect voice vs silence
+const vad = new VAD(VAD.Mode.NORMAL);
 
 /**
  * Returns true if the audioBuffer contains silence or noise, false if it contains voice.
@@ -74,8 +74,9 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
     let isResolvedOrRejected = false; // flag to prevent multiple resolve or reject calls
     let phraseTimeoutId: NodeJS.Timeout;
 
-    // start recording audio
     logger.info('Started recording audio...');
+
+    // start recording audio
     const recording = recorder.record({
       device: 'hw:1,0', // use hardware device at card 1, device 0. Found by running `arecord -l`
       recorder: 'arecord', // Using arecord for ALSA
