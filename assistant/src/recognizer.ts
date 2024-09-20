@@ -1,5 +1,7 @@
 import OpenAI, { toFile } from 'openai';
-import { logger } from './logger';
+import { parentLogger } from './logger';
+
+const logger = parentLogger.child({ filename: 'recognizer' });
 
 // instance of OpenAI API client
 const openai = new OpenAI();

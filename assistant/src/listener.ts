@@ -2,7 +2,7 @@
 import * as recorder from 'node-record-lpcm16';
 // @ts-ignore
 import VAD from 'node-vad';
-import { logger } from './logger';
+import { parentLogger } from './logger';
 
 export class WaitTimeoutError extends Error {
   constructor(message: string) {
@@ -15,6 +15,8 @@ export interface AudioSettings {
   silenceDuration?: number; // how long to wait (in seconds) in silence before stopping
   phraseTimeLimit?: number; // maximum time (in seconds) to record after audio starts
 }
+
+const logger = parentLogger.child({ filename: 'listener' });
 
 const DEFAULT_AUDIO_SETTINGS = {
   silenceDuration: 2,
