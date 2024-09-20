@@ -8,6 +8,13 @@ const openai = new OpenAI();
 
 export async function recognize(audioBuffer: Buffer): Promise<string> {
   try {
+    if (audioBuffer.length === 0) {
+      logger.warn(
+        'Empty buffer (only silence or noise recorded), skipping transcription.',
+      );
+      return '';
+    }
+
     logger.info('Transcribing audio...');
     const transcription = await openai.audio.transcriptions.create({
       file: await toFile(audioBuffer, 'audio_buffer.wav'), // convert audio buffer to file like object

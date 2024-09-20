@@ -63,6 +63,15 @@ function isErrorWithIgnoredExitCode(err: any): boolean {
   );
 }
 
+function prepareAudioBuffer(
+  audioBuffer: Buffer[],
+  voiceDataStarted: boolean,
+): Buffer {
+  // if voice data was detected, return buffer with everything,
+  // otherwise return an empty buffer so that we don't transcribe silence.
+  return voiceDataStarted ? Buffer.concat(audioBuffer) : Buffer.alloc(0);
+}
+
 export function listen(settings: AudioSettings = {}): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     // configure defaults
@@ -103,7 +112,7 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
             if (hasTooMuchSilence(silenceStartTime, silenceDuration)) {
               logger.info('Silence detected, stopping recording.');
               recording.stop();
-              resolve(Buffer.concat(audioBuffer));
+              resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
               isResolvedOrRejected = true;
             }
           } else {
@@ -128,7 +137,7 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
         phraseTimeoutId = setTimeout(() => {
           logger.info('Phrase time limit reached, stopping recording.');
           recording.stop();
-          resolve(Buffer.concat(audioBuffer));
+          resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
           isResolvedOrRejected = true;
         }, phraseTimeLimit * 1000);
       })
@@ -154,7 +163,7 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
 
       logger.info('Manual stop after phrase time limit.');
       recording.stop();
-      resolve(Buffer.concat(audioBuffer));
+      resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
       isResolvedOrRejected = true;
     }, phraseTimeLimit * 1000);
   });
