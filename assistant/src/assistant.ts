@@ -2,6 +2,7 @@ import { askAssistant } from './ask';
 import { listen } from './listener';
 import { parentLogger } from './logger';
 import { recognize } from './recognizer';
+import { playEffect, SoundEffect } from './soundEffects';
 import { speak } from './speak';
 
 const logger = parentLogger.child({ filename: 'assistant' });
@@ -42,6 +43,9 @@ export async function runAssistantLoop() {
       logger.info('📶 Wake word detected!');
       const actualText = cleanedText.split(wakeWord)[1].trim();
       logger.debug(`💬 Heard text: ${actualText}`);
+
+      // play sound effect to indicate wake word detection, don't wait for it
+      playEffect(SoundEffect.BEEP);
 
       // 3. Ask assistant
       const response = await askAssistant(actualText);
