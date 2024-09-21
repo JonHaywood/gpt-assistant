@@ -82,10 +82,9 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
     const audioBuffer: Buffer[] = [];
     let voiceDataStarted = false;
     let silenceStartTime: number | null = null;
-    let isResolvedOrRejected = false; // flag to prevent multiple resolve or reject calls
     let phraseTimeoutId: NodeJS.Timeout;
 
-    logger.info('Started recording audio...');
+    logger.debug('Started recording audio...');
 
     // start recording audio
     const recording = recorder.record({
@@ -98,9 +97,6 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
     recording
       .stream()
       .on('data', async (data: Buffer) => {
-        // spinning down, stop recording
-        if (isResolvedOrRejected) return;
-
         // accumulate audio chunks
         audioBuffer.push(data);
 
@@ -110,10 +106,9 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
           // check if it has been long enough to stop recording
           if (silenceStartTime) {
             if (hasTooMuchSilence(silenceStartTime, silenceDuration)) {
-              logger.info('Silence detected, stopping recording.');
+              logger.debug('Silence detected, stopping recording.');
               recording.stop();
-              resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
-              isResolvedOrRejected = true;
+              return;
             }
           } else {
             silenceStartTime = Date.now(); // mark the start of the silence
@@ -131,40 +126,36 @@ export function listen(settings: AudioSettings = {}): Promise<Buffer> {
         // if here then voice was newly detected, clear the phrase timeout
         clearTimeout(phraseTimeoutId);
         voiceDataStarted = true;
-        logger.info('Audio detected!');
+        logger.info('🎤️ Audio detected!');
 
         // set phrase time limit to stop recording
         phraseTimeoutId = setTimeout(() => {
-          logger.info('Phrase time limit reached, stopping recording.');
+          logger.debug('Phrase time limit reached, stopping recording.');
           recording.stop();
-          resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
-          isResolvedOrRejected = true;
         }, phraseTimeLimit * 1000);
       })
       .on('error', (err: any) => {
         // check for known exit codes and ignore them
         if (isErrorWithIgnoredExitCode(err)) {
-          logger.info('arecord finished with a known exit code, ignoring.');
+          logger.debug('arecord finished with a known exit code, ignoring.');
           return;
         }
 
         logger.error(`recorder threw an error: "${JSON.stringify(err)}"`);
         if (phraseTimeoutId) clearTimeout(phraseTimeoutId);
         reject(err);
-        isResolvedOrRejected = true;
       })
       .on('end', () => {
-        logger.info('Recording ended.');
+        logger.debug('Recording ended.');
+        resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
       });
 
     // stop the recording manually after phrase time limit
     setTimeout(() => {
       if (!voiceDataStarted) return;
 
-      logger.info('Manual stop after phrase time limit.');
+      logger.debug('Manual stop after phrase time limit.');
       recording.stop();
-      resolve(prepareAudioBuffer(audioBuffer, voiceDataStarted));
-      isResolvedOrRejected = true;
     }, phraseTimeLimit * 1000);
   });
 }

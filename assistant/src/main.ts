@@ -1,23 +1,31 @@
-import OpenAI from 'openai';
-import { listen } from './listener';
-import { recognize } from './recognizer';
-import fs from 'fs';
+import { runAssistantLoop } from './assistant';
+import { parentLogger } from './logger';
+
+const logger = parentLogger.child({ filename: 'main' });
 
 async function main() {
-  console.log('Starting listening...');
+  // listen for Ctrl+C signal to shutdown
+  process.on('SIGINT', () => {
+    console.log('🔚 Received SIGINT signal. Shutting down.');
+    process.exit();
+  });
+
+  // listen for shutdown and log the exit code
+  process.on('exit', async (code) => {
+    console.log('🛑 Assistant exited with code:', code);
+  });
 
   try {
-    const audioBuffer = await listen({
-      silenceDuration: 2,
-      phraseTimeLimit: 5,
-    });
-    console.log(`Received audio buffer of length ${audioBuffer.length}`);
-    //fs.writeFileSync('audio.raw', audioBuffer);
-
-    const text = await recognize(audioBuffer);
-    console.log('Transcription:', text);
+    logger.info('🤖 GPT-Assistant starting up!');
+    await runAssistantLoop();
+    logger.info('🤖 GPT-Assistant shutting down.');
   } catch (error) {
-    console.error('Error listening:', error);
+    logger.error(
+      error,
+      "⚠️ That's bad. Unexpected error caused GPT-Assistant to shutdown.",
+    );
+    // return non-zero exit code to indicate failure
+    process.exit(1);
   }
 }
 
