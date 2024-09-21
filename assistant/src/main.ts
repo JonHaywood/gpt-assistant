@@ -6,7 +6,8 @@ const logger = parentLogger.child({ filename: 'main' });
 async function main() {
   // listen for Ctrl+C signal to shutdown
   process.on('SIGINT', () => {
-    console.log('🔚 Received SIGINT signal. Shutting down.');
+    console.log('\n🔚 Received SIGINT signal. Shutting down.');
+    process.stdin.setRawMode(false); // Restore terminal mode if set
     process.exit();
   });
 

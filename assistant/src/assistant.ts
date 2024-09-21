@@ -45,7 +45,7 @@ export async function runAssistantLoop() {
 
       // 3. Ask assistant
       const response = await askAssistant(actualText);
-      logger.debug('Assistant response:', response);
+      logger.debug(`↩️ Assistant response: ${response}`);
 
       // 4. Speak response
       await speak(response);
