@@ -18,7 +18,7 @@ RUN /bin/bash -c "yes | add-apt-repository universe && \
     build-essential curl git libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
     libsqlite3-dev llvm libncursesw5-dev xz-utils tk-dev libraspberrypi-bin \
     libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libjpeg-dev \
-    portaudio19-dev alsa-utils libasound2-dev i2c-tools python3 python3-pip \
+    portaudio19-dev alsa-utils libasound2-dev i2c-tools python3 python3-pip python3-venv \
     jackd2 libogg0 libflac-dev flac libespeak1 cmake openssl expect \
     nodejs npm libc6:armhf libdbus-1-3:armhf libasound2:armhf && rm -rf /var/lib/apt/lists/*"
 
