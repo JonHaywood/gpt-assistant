@@ -31,6 +31,15 @@ COPY . /app
 # Install dependencies using pnpm
 RUN npm install --force
 
+# Create a python virtual environment (to allow for pip installs)
+RUN python -m venv .venv
+
+# Activate the virtual environment
+RUN source .venv/bin/activate
+
+# Install Piper TTS in the virtual environment
+RUN pip install piper-tts
+
 # Run any necessary commands on container startup (optional)
 # The CMD is not necessary if you are specifying the command in docker-compose.yml
 #CMD ["poetry", "run", "python"]
