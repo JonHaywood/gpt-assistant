@@ -12,7 +12,7 @@ let abortController: AbortController | null = null;
  *
  * echo 'Speak this text.' | \
  * ./piper --model voice.onnx --output-raw | \
- * aplay -r 16000 -f S16_LE -t raw -
+ * aplay -r 22050 -f S16_LE -t raw -
  *
  * Which will stream raw audio from piper to stdout as its produced
  * and use aplay to play it.
@@ -47,7 +47,7 @@ export async function speak(text: string): Promise<void> {
     // aplay command with appropriate settings for playing raw audio
     const aplayProcess = spawn(
       'aplay',
-      ['-r', '16000', '-f', 'S16_LE', '-t', 'raw', '-'],
+      ['-r', '22050', '-f', 'S16_LE', '-t', 'raw', '-'],
       { signal },
     );
 
