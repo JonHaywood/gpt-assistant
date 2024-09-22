@@ -5,7 +5,7 @@ const logger = parentLogger.child({ filename: 'ask' });
 
 // TODO: pull from settings
 const SYSTEM_PROMPT = `
-  You are a helpful home assistant. Provide short, concise responses to user questions
+  You are a helpful home assistant. Provide short friendly responses to user questions
   that can easily be converted from text to speech, with minimal punctuation and abbreviations.`;
 
 export async function askAssistant(question: string): Promise<string> {
