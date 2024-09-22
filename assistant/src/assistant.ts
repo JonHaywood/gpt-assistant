@@ -2,7 +2,7 @@ import { askAssistant } from './ask';
 import { listen } from './listener';
 import { parentLogger } from './logger';
 import { recognize } from './recognizer';
-import { playEffect, SoundEffect } from './soundEffects';
+import { loadEffectsIntoMemory, playEffect, SoundEffect } from './soundEffects';
 import { speak } from './speak';
 
 const logger = parentLogger.child({ filename: 'assistant' });
@@ -24,6 +24,9 @@ export async function runAssistantLoop() {
 
   while (true) {
     try {
+      // load all sound effects into memory
+      await loadEffectsIntoMemory();
+
       // 1. Listen for user input
       const audioBuffer = await listen();
       logger.debug(`Received audio buffer of length ${audioBuffer.length}`);
