@@ -32,13 +32,10 @@ COPY . /app
 RUN npm install --force
 
 # Create a python virtual environment (to allow for pip installs)
-RUN python -m venv .venv
+RUN python3 -m venv .venv
 
-# Activate the virtual environment
-RUN source .venv/bin/activate
-
-# Install Piper TTS in the virtual environment
-RUN pip install piper-tts
+# Activate and user virtual env to install Piper TTS
+RUN . .venv/bin/activate && pip install piper-tts
 
 # Run any necessary commands on container startup (optional)
 # The CMD is not necessary if you are specifying the command in docker-compose.yml
