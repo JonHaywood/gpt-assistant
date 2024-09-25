@@ -1,5 +1,4 @@
 import { flushLogger, parentLogger } from './logger';
-import { shutdownWakeword } from './wakeword';
 
 const logger = parentLogger.child({ filename: 'shutdown' });
 
@@ -43,5 +42,4 @@ export function setupProcessShutdownHandlers(abortController: AbortController) {
 
 function handleExternalShutdown(abortController: AbortController) {
   abortController.abort(); // tell listener to stop
-  shutdownWakeword(); // release wakeword resources
 }

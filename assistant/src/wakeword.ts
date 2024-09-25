@@ -1,12 +1,13 @@
 import { Porcupine, BuiltinKeyword } from '@picovoice/porcupine-node';
 import { PICOVOICE_ACCESS_KEY } from './env';
 import { type AudioBuffer } from './listener.types';
+import { settings } from './settings';
 
 // instance of porcupine wake word engine
 const porcupine = new Porcupine(
   PICOVOICE_ACCESS_KEY,
   [BuiltinKeyword.COMPUTER],
-  [0.5],
+  [settings.wakeworkThreshold],
 );
 
 export const FRAME_LENGTH = porcupine.frameLength; // should be 512
@@ -19,10 +20,4 @@ export function detectWakeword(frame: AudioBuffer): boolean {
 
   // only using one keyword, so if the index is not -1, then the keyword was detected
   return keywordIndex !== -1;
-}
-
-export function shutdownWakeword(): void {
-  // releases resources acquired by Porcupine
-  //console.log('Releasing Porcupine resources...');
-  //porcupine.release();
 }

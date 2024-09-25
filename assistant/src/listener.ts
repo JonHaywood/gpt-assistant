@@ -7,11 +7,9 @@ import { type AudioBuffer, ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
 import { playEffect, SoundEffect } from './soundEffects';
 import { FRAME_LENGTH } from './wakeword';
+import { settings } from './settings';
 
 const logger = parentLogger.child({ filename: 'listener' });
-
-// TODO: pull from settings or env
-const DEVICE_INDEX = 2;
 
 /**
  * Continuously listens for audio data and passes it to the given callback.
@@ -25,13 +23,11 @@ export async function listen(
   if (signal.aborted) throw new Error('Signal is already aborted');
 
   // create a new recorder instance
-  const recorder = new PvRecorder(FRAME_LENGTH, DEVICE_INDEX);
+  const recorder = new PvRecorder(FRAME_LENGTH, settings.deviceIndex);
 
   // listen for abort signal
   const abortHandler = () => {
     logger.info('⛔ Received abort signal, stopping listening...');
-    // recorder.stop();
-    // recorder.release();
   };
   // { once: true } removes listener after abort is called
   signal.addEventListener('abort', abortHandler, { once: true });
@@ -60,7 +56,5 @@ export async function listen(
     signal.removeEventListener('abort', abortHandler);
 
     recorder.stop();
-    //console.log('releasing recorder');
-    //recorder.release();
   }
 }
