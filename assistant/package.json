@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.4.0",
+    "@types/debug": "^4.1.12",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^7.11.0",
@@ -27,6 +28,8 @@
     "typescript-eslint": "^7.11.0"
   },
   "dependencies": {
+    "@picovoice/porcupine-node": "^3.0.4",
+    "@picovoice/pvrecorder-node": "^1.2.4",
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.2",
     "node-gyp": "^10.2.0",

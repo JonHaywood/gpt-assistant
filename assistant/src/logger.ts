@@ -20,3 +20,12 @@ export const parentLogger = pino({
     },
   },
 });
+
+/**
+ * Flushes any buffered logs to the output stream.
+ */
+export function flushLogger(): Promise<void> {
+  return new Promise((resolve) => {
+    parentLogger.flush(() => resolve());
+  });
+}

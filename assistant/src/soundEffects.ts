@@ -14,6 +14,8 @@ export enum SoundEffect {
 }
 
 export async function loadEffectsIntoMemory() {
+  logger.info('Loading sound effects into memory...');
+
   for (const effect of Object.values(SoundEffect)) {
     const filePath = `./assets/${effect}.wav`;
     try {
@@ -24,9 +26,14 @@ export async function loadEffectsIntoMemory() {
       throw error;
     }
   }
+
+  logger.info('Sound effects loaded successfully.');
 }
 
-export async function playEffect(effect: SoundEffect) {
+/**
+ * Spawns aplay OS command to asynchronously play the given sound effect.
+ */
+export function playEffect(effect: SoundEffect) {
   const audioBuffer = effectBufferMap.get(effect);
   if (!audioBuffer)
     throw new Error(
