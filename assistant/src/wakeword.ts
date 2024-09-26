@@ -1,13 +1,12 @@
 import { Porcupine, BuiltinKeyword } from '@picovoice/porcupine-node';
-import { PICOVOICE_ACCESS_KEY } from './env';
+import { PICOVOICE_ACCESS_KEY, WAKEWORD_THRESHOLD } from './env';
 import { type AudioBuffer } from './listener.types';
-import { settings } from './settings';
 
 // instance of porcupine wake word engine
 const porcupine = new Porcupine(
   PICOVOICE_ACCESS_KEY,
   [BuiltinKeyword.COMPUTER],
-  [settings.wakeworkThreshold],
+  [WAKEWORD_THRESHOLD],
 );
 
 export const FRAME_LENGTH = porcupine.frameLength; // should be 512

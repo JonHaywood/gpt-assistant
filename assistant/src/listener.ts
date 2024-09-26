@@ -2,14 +2,18 @@
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { PvRecorder } from '@picovoice/pvrecorder-node';
 import { handleAudioData } from './assistant';
-import { PICOVOICE_ACCESS_KEY } from './env';
+import { DEVICE_INDEX, PICOVOICE_ACCESS_KEY } from './env';
 import { type AudioBuffer, ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
 import { playEffect, SoundEffect } from './soundEffects';
 import { FRAME_LENGTH } from './wakeword';
-import { settings } from './settings';
 
 const logger = parentLogger.child({ filename: 'listener' });
+
+// create a new recorder instance
+const recorder = new PvRecorder(FRAME_LENGTH, DEVICE_INDEX);
+
+export const SAMPLE_RATE = recorder.sampleRate;
 
 /**
  * Continuously listens for audio data and passes it to the given callback.
@@ -21,9 +25,6 @@ export async function listen(
   signal: AbortSignal,
 ): Promise<void> {
   if (signal.aborted) throw new Error('Signal is already aborted');
-
-  // create a new recorder instance
-  const recorder = new PvRecorder(FRAME_LENGTH, settings.deviceIndex);
 
   // listen for abort signal
   const abortHandler = () => {
