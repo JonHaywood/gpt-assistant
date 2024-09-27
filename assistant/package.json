@@ -39,6 +39,7 @@
     "openai": "^4.61.0",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
+    "wavefile": "^11.0.0",
     "zod": "^3.21.4"
   },
   "author": "Jon Haywood",

@@ -68,14 +68,18 @@ export class Assistant {
       this.totalAudioDuration += frameDuration(frame, SAMPLE_RATE);
 
       // if silence detected for X seconds at the the beginning, stop
-      if (this._isStartingAudioOnlySilence()) {
+      const isStartingAudioOnlySilence =
+        !this.voiceDetected && this.silenceDuration >= ASSISTANT_LISTEN_TIMEOUT;
+      if (isStartingAudioOnlySilence) {
         logger.info('Stopping assistant loop due to silence.');
         this.stop();
         return;
       }
 
       // if silence detected for X seconds after voice detected, stop & transcribe
-      if (this._isSilenceAfterVoice()) {
+      const isSilenceAfterVoice =
+        this.voiceDetected && this.silenceDuration >= ASSISTANT_VOICE_TIMEOUT;
+      if (isSilenceAfterVoice) {
         logger.info('🎤️ Audio phrase detected!');
         this.stop();
         this._transcribeAndSpeak();
@@ -83,7 +87,10 @@ export class Assistant {
       }
 
       // if speech has gone on long enough, stop & transcribe
-      if (this._isVoiceRecordingTooLong()) {
+      const isVoiceRecordingTooLong =
+        this.voiceDetected &&
+        this.totalAudioDuration >= ASSISTANT_MAX_RECORDING_LENGTH;
+      if (isVoiceRecordingTooLong) {
         logger.info(
           '🎤️ Audio phrase detected! Audio recording limit reached.',
         );
@@ -112,25 +119,6 @@ export class Assistant {
   _detectSilenceOrNoise(frame: AudioBuffer) {
     const voiceProbability = vad.process(frame);
     return voiceProbability < ASSISTANT_VOICEDETECTION_THRESHOLD;
-  }
-
-  _isStartingAudioOnlySilence() {
-    return (
-      !this.voiceDetected && this.silenceDuration >= ASSISTANT_LISTEN_TIMEOUT
-    );
-  }
-
-  _isSilenceAfterVoice() {
-    return (
-      this.voiceDetected && this.silenceDuration >= ASSISTANT_VOICE_TIMEOUT
-    );
-  }
-
-  _isVoiceRecordingTooLong() {
-    return (
-      this.voiceDetected &&
-      this.totalAudioDuration >= ASSISTANT_MAX_RECORDING_LENGTH
-    );
   }
 
   async _transcribeAndSpeak() {

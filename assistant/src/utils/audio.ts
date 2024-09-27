@@ -1,3 +1,4 @@
+import { WaveFile } from 'wavefile';
 import { type AudioBuffer } from 'src/listener.types';
 
 export function concatAudioBuffers(buffers: AudioBuffer[]): AudioBuffer {
@@ -17,4 +18,13 @@ export function concatAudioBuffers(buffers: AudioBuffer[]): AudioBuffer {
  */
 export function frameDuration(frame: AudioBuffer, sampleRate: number): number {
   return (frame.length / sampleRate) * 1000;
+}
+
+/**
+ * Converts raw audio data to a WAV file buffer.
+ */
+export function convertRawAudioToWav(buffer: AudioBuffer, sampleRate: number) {
+  const wav = new WaveFile();
+  wav.fromScratch(1, sampleRate, '16', buffer);
+  return wav.toBuffer();
 }

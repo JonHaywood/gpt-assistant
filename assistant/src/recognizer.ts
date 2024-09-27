@@ -2,6 +2,8 @@ import { toFile } from 'openai';
 import { parentLogger } from './logger';
 import { openai } from './openai';
 import { type AudioBuffer } from './listener.types';
+import { SAMPLE_RATE } from './listener';
+import { convertRawAudioToWav } from './utils/audio';
 
 const logger = parentLogger.child({ filename: 'recognizer' });
 
@@ -16,8 +18,11 @@ export async function recognize(audioBuffer: AudioBuffer): Promise<string> {
 
     logger.info('Transcribing audio...');
 
+    // open AI requires audio to be in WAV format
+    const wavFile = convertRawAudioToWav(audioBuffer, SAMPLE_RATE);
+
     const transcription = await openai.audio.transcriptions.create({
-      file: await toFile(audioBuffer, 'audio_buffer.raw'), // convert audio buffer to file like object
+      file: await toFile(wavFile, 'audio_buffer.wav'), // convert to file like object
       model: 'whisper-1',
     });
 
