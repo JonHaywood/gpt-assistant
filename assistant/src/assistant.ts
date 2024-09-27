@@ -59,7 +59,7 @@ export class Assistant {
 
       this.frames.push(frame);
 
-      const isSilence = this._detectSilenceOrNoise(frame);
+      const isSilence = this.detectSilenceOrNoise(frame);
       if (isSilence) {
         this.silenceDuration += frameDuration(frame, SAMPLE_RATE);
       } else {
@@ -85,7 +85,7 @@ export class Assistant {
         this.silenceDuration >= ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT;
       if (isSilenceAfterVoice) {
         logger.info('🎤️ Audio phrase detected!');
-        this._transcribeAndSpeak();
+        this.transcribeAndSpeak();
         return;
       }
 
@@ -97,7 +97,7 @@ export class Assistant {
         logger.info(
           '🎤️ Audio phrase detected! Audio recording limit reached.',
         );
-        await this._transcribeAndSpeak();
+        await this.transcribeAndSpeak();
         return;
       }
 
@@ -125,12 +125,12 @@ export class Assistant {
     this.totalAudioDuration = 0;
   }
 
-  _detectSilenceOrNoise(frame: AudioBuffer) {
+  private detectSilenceOrNoise(frame: AudioBuffer) {
     const voiceProbability = vad.process(frame);
     return voiceProbability < ASSISTANT_VOICEDETECTION_THRESHOLD;
   }
 
-  async _transcribeAndSpeak() {
+  private async transcribeAndSpeak() {
     logger.info('✏️ Transcribing audio...');
 
     this.isBusy = true;
