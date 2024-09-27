@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { PvRecorder } from '@picovoice/pvrecorder-node';
-import { handleAudioData } from './assistant';
 import { DEVICE_INDEX, PICOVOICE_ACCESS_KEY } from './env';
 import { type AudioBuffer, ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
@@ -45,7 +44,7 @@ export async function listen(
 
       // pass frame to callback for processing. Is async but not awaited
       // to allow this loop to continue listening.
-      handleAudioData(frame);
+      callback(frame);
     }
 
     logger.debug('🔚 Listening ended.');

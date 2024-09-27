@@ -1,4 +1,4 @@
-import { handleAudioData } from './assistant';
+import { handleAudioData } from './assistantRunner';
 import { listen } from './listener';
 import { parentLogger } from './logger';
 import { setupProcessShutdownHandlers } from './shutdown';

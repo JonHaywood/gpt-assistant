@@ -1,9 +1,5 @@
 // @ts-ignore
-import { SAMPLE_RATE } from './listener';
-import { type AudioBuffer } from './listener.types';
-import { parentLogger } from './logger';
-import { playEffect, SoundEffect } from './soundEffects';
-import { detectWakeword } from './wakeword';
+import { Cobra } from '@picovoice/cobra-node';
 import {
   ASSISTANT_LISTEN_TIMEOUT,
   ASSISTANT_MAX_RECORDING_LENGTH,
@@ -11,71 +7,65 @@ import {
   ASSISTANT_VOICEDETECTION_THRESHOLD,
   PICOVOICE_ACCESS_KEY,
 } from './env';
-import { Cobra } from '@picovoice/cobra-node';
+import { SAMPLE_RATE } from './listener';
+import { type AudioBuffer } from './listener.types';
+import { parentLogger } from './logger';
+import { recognize } from './recognizer';
+import { concatAudioBuffers, frameDuration } from './utils/audio';
 
 const logger = parentLogger.child({ filename: 'assistant' });
 
 // instance of Voice Activity Detection library, used to detect voice vs silence
 const vad = new Cobra(PICOVOICE_ACCESS_KEY);
 
-let runningAssistant: Assistant | null = null;
-
 /**
- * Function that is invoked for every chunk/frame of audio data
- * received from the microphone.
+ * Assistant class that reacts to incoming audio data. Is a class
+ * because it needs to maintain state across multiple frames of audio.
  */
-export async function handleAudioData(frame: AudioBuffer) {
-  const isWakeword = detectWakeword(frame);
+export class Assistant {
+  private static runningInstance: Assistant | null = null;
 
-  if (isWakeword) {
-    logger.info('📶 Wake word detected!');
-
-    // play sound effect to indicate wake word detection
-    playEffect(SoundEffect.BEEP);
-
-    // TODO: stop the current assistant if it's running
-
-    // start a new assistant loop
-    logger.info('🧠 Starting assistant loop...');
-    runningAssistant = new Assistant(frame);
-  } else if (runningAssistant) {
-    await runningAssistant.handleAudioData(frame);
-  }
-}
-
-class Assistant {
   id: number = Date.now();
   frames: AudioBuffer[];
 
   voiceDetected: boolean = false;
   silenceDuration: number = 0;
   totalAudioDuration: number = 0;
-  isSpeaking: boolean = false;
+  isBusy: boolean = false; // when transcribing or speaking
 
-  get isActive(): boolean {
-    return runningAssistant?.id === this.id;
+  private constructor(initialFrame: AudioBuffer) {
+    if (Assistant.runningInstance)
+      throw new Error(
+        'Assistant already running. Previous assistant must be stopped before starting a new one.',
+      );
+    Assistant.runningInstance = this;
+    this.frames = [initialFrame];
   }
 
-  constructor(initialFrame: AudioBuffer) {
-    this.frames = [initialFrame];
+  static createAssistant(initialFrame: AudioBuffer) {
+    return new Assistant(initialFrame);
+  }
+
+  static getRunninngInstance(): Assistant | null {
+    return Assistant.runningInstance;
   }
 
   async handleAudioData(frame: AudioBuffer) {
     try {
-      // if assistant is actively speaking, ignore incoming audio data
-      if (this.isSpeaking) return;
+      // if assistant is actively speaking or transcribing, ignore incoming audio data
+      if (this.isBusy) return;
 
       this.frames.push(frame);
 
       const isSilence = this._detectSilenceOrNoise(frame);
       if (isSilence) {
-        this.silenceDuration += frameDuration(frame);
+        this.silenceDuration += frameDuration(frame, SAMPLE_RATE);
       } else {
         this.silenceDuration = 0;
         this.voiceDetected = true;
       }
 
-      this.totalAudioDuration += frameDuration(frame);
+      this.totalAudioDuration += frameDuration(frame, SAMPLE_RATE);
 
       // if silence detected for X seconds at the the beginning, stop
       if (this._isStartingAudioOnlySilence()) {
@@ -85,7 +75,7 @@ class Assistant {
       }
 
       // if silence detected for X seconds after voice detected, stop & transcribe
-      if (this._isSilenceAfterVoice() || this._isVoiceRecordingTooLong()) {
+      if (this._isSilenceAfterVoice()) {
         logger.info('🎤️ Audio phrase detected!');
         this.stop();
         this._transcribeAndSpeak();
@@ -98,7 +88,7 @@ class Assistant {
           '🎤️ Audio phrase detected! Audio recording limit reached.',
         );
         this.stop();
-        this._transcribeAndSpeak();
+        await this._transcribeAndSpeak();
         return;
       }
 
@@ -115,8 +105,8 @@ class Assistant {
   stop() {
     logger.info('🔚 Stopping assistant loop.');
     // remove reference to this assistant so it can be garbage collected
-    if (this.isActive) runningAssistant = null;
-    this.frames = [];
+    if (Assistant.runningInstance?.id === this.id)
+      Assistant.runningInstance = null;
   }
 
   _detectSilenceOrNoise(frame: AudioBuffer) {
@@ -143,16 +133,20 @@ class Assistant {
     );
   }
 
-  _transcribeAndSpeak() {
+  async _transcribeAndSpeak() {
     logger.info('✏️ Transcribing audio...');
+
+    this.isBusy = true;
+
+    // concat all frames and transcribe
+    const audioBuffer = concatAudioBuffers(this.frames);
+    const text = await recognize(audioBuffer);
+    logger.debug(`💬 Heard text: ${text}`);
+
+    this.isBusy = false;
 
     // TODO: streaming transcribe to audio. Once speaking begins, set
     // this.isSpeaking = true and clear this.frames, then resets this.isSpeaking
     // to false once speaking ends.
   }
-}
-
-// Returns the duration of the frame in milliseconds
-function frameDuration(frame: AudioBuffer): number {
-  return (frame.length / SAMPLE_RATE) * 1000;
 }

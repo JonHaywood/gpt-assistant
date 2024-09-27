@@ -1,10 +1,11 @@
 import { toFile } from 'openai';
 import { parentLogger } from './logger';
 import { openai } from './openai';
+import { type AudioBuffer } from './listener.types';
 
 const logger = parentLogger.child({ filename: 'recognizer' });
 
-export async function recognize(audioBuffer: Buffer): Promise<string> {
+export async function recognize(audioBuffer: AudioBuffer): Promise<string> {
   try {
     if (audioBuffer.length === 0) {
       logger.debug(
@@ -16,7 +17,7 @@ export async function recognize(audioBuffer: Buffer): Promise<string> {
     logger.info('Transcribing audio...');
 
     const transcription = await openai.audio.transcriptions.create({
-      file: await toFile(audioBuffer, 'audio_buffer.wav'), // convert audio buffer to file like object
+      file: await toFile(audioBuffer, 'audio_buffer.raw'), // convert audio buffer to file like object
       model: 'whisper-1',
     });
 
