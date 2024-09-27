@@ -1,9 +1,9 @@
 // @ts-ignore
 import { Cobra } from '@picovoice/cobra-node';
 import {
-  ASSISTANT_LISTEN_TIMEOUT,
+  ASSISTANT_ONLY_SILENCE_TIMEOUT,
   ASSISTANT_MAX_RECORDING_LENGTH,
-  ASSISTANT_VOICE_TIMEOUT,
+  ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT,
   ASSISTANT_VOICEDETECTION_THRESHOLD,
   PICOVOICE_ACCESS_KEY,
 } from './env';
@@ -71,7 +71,8 @@ export class Assistant {
 
       // if silence detected for X seconds at the the beginning, stop
       const isStartingAudioOnlySilence =
-        !this.voiceDetected && this.silenceDuration >= ASSISTANT_LISTEN_TIMEOUT;
+        !this.voiceDetected &&
+        this.silenceDuration >= ASSISTANT_ONLY_SILENCE_TIMEOUT;
       if (isStartingAudioOnlySilence) {
         logger.info('Stopping assistant loop due to silence.');
         this.stop();
@@ -80,7 +81,8 @@ export class Assistant {
 
       // if silence detected for X seconds after voice detected, stop & transcribe
       const isSilenceAfterVoice =
-        this.voiceDetected && this.silenceDuration >= ASSISTANT_VOICE_TIMEOUT;
+        this.voiceDetected &&
+        this.silenceDuration >= ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT;
       if (isSilenceAfterVoice) {
         logger.info('🎤️ Audio phrase detected!');
         this._transcribeAndSpeak();

@@ -15,11 +15,11 @@ export const DEVICE_INDEX = parseInt(getEnvVar('DEVICE_INDEX', '2'));
 export const WAKEWORD_THRESHOLD = parseFloat(
   getEnvVar('WAKEWORD_THRESHOLD', '0.5'),
 );
-export const ASSISTANT_LISTEN_TIMEOUT = parseInt(
+export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(
   getEnvVar('ASSISTANT_LISTEN_TIMEOUT', '5000'),
 );
-export const ASSISTANT_VOICE_TIMEOUT = parseInt(
-  getEnvVar('ASSISTANT_VOICE_TIMEOUT', '3000'),
+export const ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT = parseInt(
+  getEnvVar('ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT', '1500'),
 );
 export const ASSISTANT_MAX_RECORDING_LENGTH = parseInt(
   getEnvVar('ASSISTANT_MAX_RECORDING_LENGTH', '15000'),
