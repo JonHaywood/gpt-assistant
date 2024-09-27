@@ -24,7 +24,7 @@ export async function handleAudioData(frame: AudioBuffer) {
 
     // start a new assistant loop
     logger.info('🧠 Starting assistant loop...');
-    Assistant.createAssistant(frame);
+    Assistant.startNewAssistant(frame);
     return;
   }
 

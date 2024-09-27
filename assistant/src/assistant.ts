@@ -44,7 +44,7 @@ export class Assistant {
     this.frames = [initialFrame];
   }
 
-  static createAssistant(initialFrame: AudioBuffer) {
+  static startNewAssistant(initialFrame: AudioBuffer) {
     return new Assistant(initialFrame);
   }
 
