@@ -12,6 +12,8 @@ import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
 import { recognize } from './recognizer';
 import { concatAudioBuffers, frameDuration } from './utils/audio';
+import { askAssistant } from './ask';
+import { speak } from './speak';
 
 const logger = parentLogger.child({ filename: 'assistant' });
 
@@ -81,7 +83,6 @@ export class Assistant {
         this.voiceDetected && this.silenceDuration >= ASSISTANT_VOICE_TIMEOUT;
       if (isSilenceAfterVoice) {
         logger.info('🎤️ Audio phrase detected!');
-        this.stop();
         this._transcribeAndSpeak();
         return;
       }
@@ -94,7 +95,6 @@ export class Assistant {
         logger.info(
           '🎤️ Audio phrase detected! Audio recording limit reached.',
         );
-        this.stop();
         await this._transcribeAndSpeak();
         return;
       }
@@ -116,6 +116,13 @@ export class Assistant {
       Assistant.runningInstance = null;
   }
 
+  reset() {
+    this.frames = [];
+    this.voiceDetected = false;
+    this.silenceDuration = 0;
+    this.totalAudioDuration = 0;
+  }
+
   _detectSilenceOrNoise(frame: AudioBuffer) {
     const voiceProbability = vad.process(frame);
     return voiceProbability < ASSISTANT_VOICEDETECTION_THRESHOLD;
@@ -131,10 +138,14 @@ export class Assistant {
     const text = await recognize(audioBuffer);
     logger.debug(`💬 Heard text: ${text}`);
 
-    this.isBusy = false;
+    // Ask assistant
+    const response = await askAssistant(text);
+    logger.debug(`↩️ Assistant response: ${response}`);
 
-    // TODO: streaming transcribe to audio. Once speaking begins, set
-    // this.isSpeaking = true and clear this.frames, then resets this.isSpeaking
-    // to false once speaking ends.
+    // speak response
+    await speak(response);
+
+    this.reset();
+    this.isBusy = false; // start listening again
   }
 }
