@@ -3,6 +3,7 @@ import { listen } from './listener';
 import { parentLogger } from './logger';
 import { setupProcessShutdownHandlers } from './shutdown';
 import { loadEffectsIntoMemory } from './soundEffects';
+import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
 
 const logger = parentLogger.child({ filename: 'main' });
 
@@ -19,8 +20,14 @@ async function main() {
     // load all sound effects into memory
     await loadEffectsIntoMemory();
 
+    // start the first TTS process
+    startPiperTTSProcess();
+
     // start the listening loop
     await listen(handleAudioData, abortController.signal);
+
+    // stop the TTS process
+    stopPiperTTSProcess();
 
     logger.info('🤖 GPT-Assistant shutting down.');
   } catch (error) {

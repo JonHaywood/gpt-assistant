@@ -1,10 +1,56 @@
-import { spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { parentLogger } from './logger';
 
 const logger = parentLogger.child({ filename: 'speak' });
 
-// manages killing the piper and aplay commands
-let abortController: AbortController | null = null;
+// manages killing the aplay command
+let speakerAbortController: AbortController | null = null;
+
+let isPiperShuttingDown = false;
+let piperProcess: ChildProcessWithoutNullStreams;
+
+/**
+ * Starts a new Piper TTS process. Unless the stop function is called,
+ * a new process will be started when the current one finishes. This
+ * grealty reduces the time it takes to start speaking text, likely
+ * because the tts model is already loaded into memory.
+ */
+export function startPiperTTSProcess() {
+  logger.info('Starting new Piper TTS process...');
+
+  // Piper command with the necessary parameters to output raw audio
+  // and stream it to aplay
+  piperProcess = spawn('piper', [
+    '--model',
+    'assets/voice.onnx',
+    '--config',
+    'assets/voice.onnx.json',
+    '--output-raw',
+  ]);
+
+  // Handle errors from piper
+  piperProcess.on('error', (error) => {
+    logger.error(`Error running Piper: ${error.message}`);
+  });
+
+  // Log when Piper process finishes
+  piperProcess.on('close', (code) => {
+    if (isPiperShuttingDown) return;
+
+    // restart the process, kill the current one, start a new one
+    logger.debug(
+      `Piper TTS process finished with exit code ${code}. Restarting...`,
+    );
+    piperProcess.kill();
+    startPiperTTSProcess();
+  });
+}
+
+export function stopPiperTTSProcess() {
+  logger.info('Stopping Piper TTS process.');
+  isPiperShuttingDown = true;
+  piperProcess.kill();
+}
 
 /**
  * Function that uses piper tts to speak the given text.
@@ -18,33 +64,20 @@ let abortController: AbortController | null = null;
  * and use aplay to play it.
  */
 export function speak(text: string): Promise<void> {
-  // stop any existing TTS processes
-  if (abortController) {
+  // stop existing speaking
+  if (speakerAbortController) {
     logger.info('🔇 Stopping previous speaking...');
-    abortController.abort();
+    speakerAbortController.abort();
   }
 
-  // manages the abort signal for the child processes
-  abortController = new AbortController();
-  const { signal } = abortController;
+  // manages the abort signal for the child speaker processes
+  speakerAbortController = new AbortController();
+  const { signal } = speakerAbortController;
 
   logger.info(`🔊 Speaking: ${text}`);
 
   return new Promise((resolve, reject) => {
     try {
-      // Piper command with the necessary parameters to output raw audio
-      const piperProcess = spawn(
-        'piper',
-        [
-          '--model',
-          'assets/voice.onnx',
-          '--config',
-          'assets/voice.onnx.json',
-          '--output-raw',
-        ],
-        { signal },
-      );
-
       // aplay command with appropriate settings for playing raw audio
       const aplayProcess = spawn(
         'aplay',
@@ -52,35 +85,25 @@ export function speak(text: string): Promise<void> {
         { signal },
       );
 
-      // Pipe Piper's stdout (raw audio) into aplay's stdin
-      piperProcess.stdout.pipe(aplayProcess.stdin);
-
-      // Handle errors from piper
-      piperProcess.on('error', (error) => {
-        logger.error(`Error running Piper: ${error.message}`);
-      });
-
       // Handle errors from aplay
       aplayProcess.on('error', (error) => {
         logger.error(`Error running aplay: ${error.message}`);
-      });
-
-      // Send the input text to Piper's stdin
-      piperProcess.stdin.write(text);
-      piperProcess.stdin.end(); // Signal end of input
-
-      // Log when Piper process finishes
-      piperProcess.on('close', (code) => {
-        logger.debug(`Piper TTS process finished with exit code ${code}`);
       });
 
       // Log when aplay process finishes
       aplayProcess.on('close', (code) => {
         logger.debug(`aplay process finished with exit code ${code}`);
         logger.info('🔊 Speaking finished.');
-        abortController = null;
+        speakerAbortController = null;
         resolve();
       });
+
+      // Pipe Piper's stdout (raw audio) into aplay's stdin
+      piperProcess.stdout.pipe(aplayProcess.stdin);
+
+      // Send the input text to Piper's stdin
+      piperProcess.stdin.write(text);
+      piperProcess.stdin.end(); // Signal end of input
     } catch (error) {
       logger.error(error, 'Error occurred during TTS processing.');
       reject(error);
