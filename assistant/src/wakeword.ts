@@ -1,11 +1,29 @@
 import { Porcupine, BuiltinKeyword } from '@picovoice/porcupine-node';
-import { PICOVOICE_ACCESS_KEY, WAKEWORD_THRESHOLD } from './env';
+import {
+  ASSISTANT_NAME,
+  PICOVOICE_ACCESS_KEY,
+  WAKEWORD_THRESHOLD,
+} from './env';
 import { type AudioBuffer } from './listener.types';
+
+// matchup assistant name to keyword
+let builtInKeyword: BuiltinKeyword | undefined;
+for (const keyword of Object.values(BuiltinKeyword)) {
+  if (keyword.toLowerCase() === ASSISTANT_NAME.toLowerCase()) {
+    builtInKeyword = keyword;
+    break;
+  }
+}
+if (!builtInKeyword) {
+  throw new Error(
+    `No built-in keyword found for assistant name: ${ASSISTANT_NAME}`,
+  );
+}
 
 // instance of porcupine wake word engine
 const porcupine = new Porcupine(
   PICOVOICE_ACCESS_KEY,
-  [BuiltinKeyword.COMPUTER],
+  [builtInKeyword],
   [WAKEWORD_THRESHOLD],
 );
 

@@ -1,11 +1,10 @@
-import { ASK_HISTORY_SIZE } from './env';
+import { ASK_HISTORY_SIZE, ASSISTANT_NAME } from './env';
 import { parentLogger } from './logger';
 import { openai, OpenAIModels } from './openai';
 
 const logger = parentLogger.child({ filename: 'ask' });
 
 // TODO: pull from settings
-const ASSISTANT_NAME = 'Jarvis';
 const SYSTEM_PROMPT = `
   You are a british helpful home assistant named ${ASSISTANT_NAME}. Provide short, concise
   responses to user questions that can easily be converted from text to speech, with minimal

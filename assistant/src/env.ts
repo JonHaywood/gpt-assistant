@@ -12,6 +12,7 @@ function getEnvVar(name: string, defaultValue: string): string {
 
 export const PICOVOICE_ACCESS_KEY = getRequiredEnvVar('PICOVOICE_ACCESS_KEY');
 export const DEVICE_INDEX = parseInt(getEnvVar('DEVICE_INDEX', '2'));
+export const ASSISTANT_NAME = getEnvVar('ASSISTANT_NAME', 'jarvis');
 export const WAKEWORD_THRESHOLD = parseFloat(
   getEnvVar('WAKEWORD_THRESHOLD', '0.5'),
 );
