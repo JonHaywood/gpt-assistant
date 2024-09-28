@@ -1,16 +1,25 @@
-import { ASK_HISTORY_SIZE, ASSISTANT_NAME } from './env';
+import { ASK_HISTORY_SIZE, ASSISTANT_NAME, OPENAI_MODEL } from './env';
 import { parentLogger } from './logger';
 import { openai, OpenAIModels } from './openai';
 
 const logger = parentLogger.child({ filename: 'ask' });
 
-// TODO: pull from settings
 const SYSTEM_PROMPT = `
   You are a british helpful home assistant named ${ASSISTANT_NAME}. Provide short, concise
   responses to user questions that can easily be converted from text to speech, with minimal
   punctuation and abbreviations. Aim for a friendly, conversational tone that is upbeat and
   engaging.
 `;
+
+// get the OpenAI model name from the environment variable
+let model: string = '';
+for (const [key, value] of Object.entries(OpenAIModels)) {
+  if (key === OPENAI_MODEL) {
+    model = value;
+    break;
+  }
+}
+if (!model) throw new Error(`No model found for OpenAI model: ${OPENAI_MODEL}`);
 
 // history of chat messages.
 const chatHistory: { role: 'user' | 'assistant'; content: string }[] = [];
@@ -20,7 +29,7 @@ export async function askAssistant(question: string): Promise<string> {
     logger.trace(`❔ Asking ChatGPT: ${question}`);
 
     const completion = await openai.chat.completions.create({
-      model: OpenAIModels['4o'], // TODO: pull from settings
+      model,
       messages: [
         {
           role: 'system',

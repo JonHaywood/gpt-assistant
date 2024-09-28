@@ -11,11 +11,12 @@ function getEnvVar(name: string, defaultValue: string): string {
 }
 
 export const PICOVOICE_ACCESS_KEY = getRequiredEnvVar('PICOVOICE_ACCESS_KEY');
+export const OPENAI_MODEL = getEnvVar('OPENAI_MODEL', '4o');
 export const DEVICE_INDEX = parseInt(getEnvVar('DEVICE_INDEX', '2'));
-export const ASSISTANT_NAME = getEnvVar('ASSISTANT_NAME', 'jarvis');
 export const WAKEWORD_THRESHOLD = parseFloat(
   getEnvVar('WAKEWORD_THRESHOLD', '0.5'),
 );
+export const ASSISTANT_NAME = getEnvVar('ASSISTANT_NAME', 'jarvis');
 export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(
   getEnvVar('ASSISTANT_LISTEN_TIMEOUT', '5000'),
 );

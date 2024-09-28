@@ -7,18 +7,17 @@ import {
 import { type AudioBuffer } from './listener.types';
 
 // matchup assistant name to keyword
-let builtInKeyword: BuiltinKeyword | undefined;
+let builtInKeyword: string | undefined;
 for (const keyword of Object.values(BuiltinKeyword)) {
   if (keyword.toLowerCase() === ASSISTANT_NAME.toLowerCase()) {
     builtInKeyword = keyword;
     break;
   }
 }
-if (!builtInKeyword) {
+if (!builtInKeyword)
   throw new Error(
     `No built-in keyword found for assistant name: ${ASSISTANT_NAME}`,
   );
-}
 
 // instance of porcupine wake word engine
 const porcupine = new Porcupine(
