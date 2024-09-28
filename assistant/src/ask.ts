@@ -1,3 +1,4 @@
+import { ASK_HISTORY_SIZE } from './env';
 import { parentLogger } from './logger';
 import { openai, OpenAIModels } from './openai';
 
@@ -11,9 +12,6 @@ const SYSTEM_PROMPT = `
   punctuation and abbreviations. Aim for a friendly, conversational tone that is upbeat and
   engaging.
 `;
-
-// number of chat messages to keep in history
-const HISTORY_SIZE = 3;
 
 // history of chat messages.
 const chatHistory: { role: 'user' | 'assistant'; content: string }[] = [];
@@ -49,7 +47,7 @@ export async function askAssistant(question: string): Promise<string> {
     chatHistory.push({ role: 'assistant', content: response });
 
     // keep chat history within the limit
-    if (chatHistory.length > HISTORY_SIZE * 2) chatHistory.shift();
+    if (chatHistory.length > ASK_HISTORY_SIZE * 2) chatHistory.shift();
 
     return response;
   } catch (error) {
