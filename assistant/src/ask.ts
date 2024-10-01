@@ -24,7 +24,10 @@ if (!model) throw new Error(`No model found for OpenAI model: ${OPENAI_MODEL}`);
 // history of chat messages.
 const chatHistory: { role: 'user' | 'assistant'; content: string }[] = [];
 
-export async function askAssistant(question: string): Promise<string> {
+/**
+ * Queries the ChatGPT model with the given question and returns the response.
+ */
+export async function askLLM(question: string): Promise<string> {
   try {
     logger.trace(`❔ ChatGPT request: ${question}`);
 

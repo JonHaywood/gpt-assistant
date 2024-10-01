@@ -1,6 +1,6 @@
 // @ts-ignore
 import { Cobra } from '@picovoice/cobra-node';
-import { askAssistant } from './ask';
+import { askLLM } from './ask';
 import {
   ASSISTANT_MAX_RECORDING_LENGTH,
   ASSISTANT_ONLY_SILENCE_TIMEOUT,
@@ -152,8 +152,8 @@ export class Assistant {
     const text = await recognize(audioBuffer);
     logger.debug(`💬 Heard text: ${text}`);
 
-    // Ask assistant
-    const response = await askAssistant(text);
+    // pipe text through LLM
+    const response = await askLLM(text);
 
     // speak response
     await speak(response);
