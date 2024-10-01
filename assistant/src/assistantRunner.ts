@@ -20,7 +20,8 @@ export async function handleAudioData(frame: AudioBuffer) {
     // play sound effect to indicate wake word detection
     playEffect(SoundEffect.BEEP);
 
-    // TODO: stop the current assistant if it's running
+    // stop the current assistant if it's running
+    Assistant.stopRunningAssistant();
 
     // start a new assistant loop
     logger.info('🧠 Starting assistant loop...');

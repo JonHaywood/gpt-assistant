@@ -31,6 +31,7 @@
     "@picovoice/cobra-node": "^2.0.2",
     "@picovoice/porcupine-node": "^3.0.4",
     "@picovoice/pvrecorder-node": "^1.2.4",
+    "@picovoice/rhino-node": "^3.0.5",
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.2",
     "node-gyp": "^10.2.0",

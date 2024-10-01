@@ -1,8 +1,9 @@
 // @ts-ignore
 import { Cobra } from '@picovoice/cobra-node';
+import { askAssistant } from './ask';
 import {
-  ASSISTANT_ONLY_SILENCE_TIMEOUT,
   ASSISTANT_MAX_RECORDING_LENGTH,
+  ASSISTANT_ONLY_SILENCE_TIMEOUT,
   ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT,
   ASSISTANT_VOICEDETECTION_THRESHOLD,
   PICOVOICE_ACCESS_KEY,
@@ -11,9 +12,9 @@ import { SAMPLE_RATE } from './listener';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
 import { recognize } from './recognizer';
+import { speak, stopCurrentSpeaking } from './speak';
+import { detectStopCommand } from './stopDetector';
 import { concatAudioBuffers, frameDuration } from './utils/audio';
-import { askAssistant } from './ask';
-import { speak } from './speak';
 
 const logger = parentLogger.child({ filename: 'assistant' });
 
@@ -44,6 +45,10 @@ export class Assistant {
     this.frames = [initialFrame];
   }
 
+  get isActive() {
+    return Assistant.runningInstance?.id === this.id;
+  }
+
   static startNewAssistant(initialFrame: AudioBuffer) {
     return new Assistant(initialFrame);
   }
@@ -52,10 +57,18 @@ export class Assistant {
     return Assistant.runningInstance;
   }
 
+  static stopRunningAssistant() {
+    Assistant.runningInstance?.stop();
+  }
+
   async handleAudioData(frame: AudioBuffer) {
     try {
       // if assistant is actively speaking or transcribing, ignore incoming audio data
-      if (this.isBusy) return;
+      if (this.isBusy) {
+        // but if the stop command is detected, then stop everything
+        if (detectStopCommand(frame)) this.handleStopCommand();
+        return;
+      }
 
       this.frames.push(frame);
 
@@ -114,8 +127,7 @@ export class Assistant {
   stop() {
     logger.info('🔚 Stopping assistant loop.');
     // remove reference to this assistant so it can be garbage collected
-    if (Assistant.runningInstance?.id === this.id)
-      Assistant.runningInstance = null;
+    if (this.isActive) Assistant.runningInstance = null;
   }
 
   reset() {
@@ -142,12 +154,22 @@ export class Assistant {
 
     // Ask assistant
     const response = await askAssistant(text);
-    logger.debug(`↩️ Assistant response: ${response}`);
 
     // speak response
     await speak(response);
 
+    // don't reset if this assistant was stopped
+    if (!this.isActive) return;
+
     this.reset();
     this.isBusy = false; // start listening again
+  }
+
+  private handleStopCommand() {
+    logger.info(
+      'Stopping assistant loop and any current speaking due to stop command.',
+    );
+    this.stop();
+    stopCurrentSpeaking();
   }
 }

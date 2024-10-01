@@ -5,6 +5,9 @@ import {
   WAKEWORD_THRESHOLD,
 } from './env';
 import { type AudioBuffer } from './listener.types';
+import { parentLogger } from './logger';
+
+const logger = parentLogger.child({ filename: 'wakeword' });
 
 // matchup assistant name to keyword
 let builtInKeyword: string | undefined;
@@ -36,4 +39,9 @@ export function detectWakeword(frame: AudioBuffer): boolean {
 
   // only using one keyword, so if the index is not -1, then the keyword was detected
   return keywordIndex !== -1;
+}
+
+export function shutdownWakewordEngine() {
+  logger.info(' Shutting down wakeword engine.');
+  porcupine.release();
 }

@@ -26,7 +26,7 @@ const chatHistory: { role: 'user' | 'assistant'; content: string }[] = [];
 
 export async function askAssistant(question: string): Promise<string> {
   try {
-    logger.trace(`❔ Asking ChatGPT: ${question}`);
+    logger.trace(`❔ ChatGPT request: ${question}`);
 
     const completion = await openai.chat.completions.create({
       model,

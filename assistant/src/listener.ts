@@ -5,6 +5,7 @@ import { DEVICE_INDEX, PICOVOICE_ACCESS_KEY } from './env';
 import { type AudioBuffer, ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
 import { playEffect, SoundEffect } from './soundEffects';
+import { AppLevelAbortController } from './utils/abort';
 import { FRAME_LENGTH } from './wakeword';
 
 const logger = parentLogger.child({ filename: 'listener' });
@@ -17,12 +18,9 @@ export const SAMPLE_RATE = recorder.sampleRate;
 /**
  * Continuously listens for audio data and passes it to the given callback.
  * @param callback - function to process each frame of audio data.
- * @param signal - AbortSignal to stop listening
  */
-export async function listen(
-  callback: ListenerDataCallback,
-  signal: AbortSignal,
-): Promise<void> {
+export async function listen(callback: ListenerDataCallback): Promise<void> {
+  const { signal } = AppLevelAbortController;
   if (signal.aborted) throw new Error('Signal is already aborted');
 
   // listen for abort signal
