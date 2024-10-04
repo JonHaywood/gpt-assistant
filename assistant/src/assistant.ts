@@ -1,4 +1,3 @@
-// @ts-ignore
 import { Cobra } from '@picovoice/cobra-node';
 import { askLLM } from './ask';
 import {

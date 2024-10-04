@@ -29,4 +29,4 @@ export const ASSISTANT_MAX_RECORDING_LENGTH = parseInt(
 export const ASSISTANT_VOICEDETECTION_THRESHOLD = parseFloat(
   getEnvVar('ASSISTANT_VOICEDETECTION_THRESHOLD', '0.2'),
 );
-export const ASK_HISTORY_SIZE = parseInt(getEnvVar('ASK_HISTORY_SIZE', '3'));
+export const ASK_HISTORY_SIZE = parseInt(getEnvVar('ASK_HISTORY_SIZE', '5'));
