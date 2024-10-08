@@ -2,16 +2,18 @@ import { AutoParseableTool } from 'openai/lib/parser.mjs';
 import { ChatCompletionMessageToolCall } from 'openai/resources/index.mjs';
 import { parentLogger } from '../../logger';
 import { calculate, calculateWithSubtitutes } from './calculate';
+import { clock } from './clock';
 import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
 
 const logger = parentLogger.child({ filename: 'tools' });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const allTools: AutoParseableTool<any>[] = [
-  getHourlyWeatherForecast,
-  getWeatherForecast,
   calculate,
   calculateWithSubtitutes,
+  clock,
+  getHourlyWeatherForecast,
+  getWeatherForecast,
 ];
 
 export interface Tools {

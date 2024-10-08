@@ -32,6 +32,7 @@
     "@picovoice/porcupine-node": "^3.0.4",
     "@picovoice/pvrecorder-node": "^1.2.4",
     "@picovoice/rhino-node": "^3.0.5",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.4.2",
     "expr-eval": "^2.0.2",
