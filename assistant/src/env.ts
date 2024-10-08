@@ -30,3 +30,5 @@ export const ASSISTANT_VOICEDETECTION_THRESHOLD = parseFloat(
   getEnvVar('ASSISTANT_VOICEDETECTION_THRESHOLD', '0.1'),
 );
 export const ASK_HISTORY_SIZE = parseInt(getEnvVar('ASK_HISTORY_SIZE', '5'));
+export const ADDRESS = getEnvVar('ADDRESS', '');
+export const GEOCODIO_API_KEY = getEnvVar('GEOCODIO_API_KEY', '');

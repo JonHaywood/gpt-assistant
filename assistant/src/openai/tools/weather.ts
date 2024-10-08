@@ -1,6 +1,14 @@
 import { zodFunction } from 'openai/helpers/zod';
-import { fetchJSON } from '../../utils/fetchJson';
+// @ts-expect-error - no types
+import Geocodio from 'geocodio-library-node';
 import { z } from 'zod';
+import { ADDRESS, GEOCODIO_API_KEY } from '../../env';
+import { parentLogger } from '../../logger';
+import { fetchJSON } from '../../utils/fetchJson';
+
+const logger = parentLogger.child({ filename: 'weather' });
+
+const geocoder = new Geocodio(GEOCODIO_API_KEY);
 
 interface Coordinate {
   lat: number;
@@ -12,27 +20,42 @@ interface ForecastUrls {
   forecastHourly: string;
 }
 
-// TODO: pull this from env vars
-const assistantLocation = 'Fort Collins, CO';
+/**
+ * Cache the forecast URLs for a location to avoid repeated geocoding.
+ */
 const cachedCoordinateForecastUrl = new Map<string, ForecastUrls>();
 
-async function getLatLongForLocation(_location: string): Promise<Coordinate> {
-  // TODO: actually geocode the location
-  const lat = 40.5853;
-  const lon = -105.0844;
+async function getLatLongForLocation(
+  location: string,
+): Promise<Coordinate | undefined> {
+  const response = await geocoder.geocode(location);
+  if (response.error) {
+    logger.error(response.error, 'Error geocoding location');
+    return;
+  }
+  if (response.results.length === 0) {
+    logger.error(null, 'Could not find location');
+    return;
+  }
+
+  const { lat, lng: lon } = response.results[0].location;
   return { lat, lon };
 }
 
-async function getForecastUrls(location: string): Promise<ForecastUrls> {
+async function getForecastUrls(
+  location: string,
+): Promise<ForecastUrls | undefined> {
   const cachedLocation = cachedCoordinateForecastUrl.get(location);
   if (cachedLocation) {
     return cachedLocation;
   }
 
   // geo code the location
-  const { lat, lon } = await getLatLongForLocation(location);
+  const result = await getLatLongForLocation(location);
+  if (!result) return;
 
   // first the forecast URLs for the location
+  const { lat, lon } = result;
   const data = await fetchJSON(`https://api.weather.gov/points/${lat},${lon}`);
   const forecastUrls = {
     forecast: data.properties.forecast,
@@ -43,25 +66,38 @@ async function getForecastUrls(location: string): Promise<ForecastUrls> {
   return forecastUrls;
 }
 
-async function _getWeatherForecast(location: string, useHourly = false) {
+async function _getWeatherForecast(location: string | null, useHourly = false) {
+  if (!location) {
+    location = ADDRESS;
+    if (!location) return 'Location has not been configured.';
+  }
+
   // get the urls to fetch the forecast
   const urls = await getForecastUrls(location);
+  if (!urls) return 'Could not get forecast for location.';
 
   const forecastUrl = useHourly ? urls.forecastHourly : urls.forecast;
   const data = await fetchJSON(forecastUrl);
+  logger.debug(data, 'Weather forecast data');
 
   const forecast = JSON.stringify(data.properties);
   return forecast;
 }
 
-const NoParameters = z.object({});
+const ForecastParameters = z.object({
+  location: z
+    .union([z.string(), z.null()])
+    .describe(
+      "Location to get the forecast for in the format of '<City>, <State Abbr>'. Leave empty to use the assistant's location.",
+    ),
+});
 
 export const getWeatherForecast = zodFunction({
   name: 'getWeatherForecast',
   description: 'Gets the weather forecast.',
-  parameters: NoParameters,
-  function: async (_args = {}) => {
-    const forecast = await _getWeatherForecast(assistantLocation);
+  parameters: ForecastParameters,
+  function: async ({ location }) => {
+    const forecast = await _getWeatherForecast(location);
     return forecast;
   },
 });
@@ -69,9 +105,9 @@ export const getWeatherForecast = zodFunction({
 export const getHourlyWeatherForecast = zodFunction({
   name: 'getHourlyWeatherForecast',
   description: 'Gets the hourly weather forecast.',
-  parameters: NoParameters,
-  function: async (_args = {}) => {
-    const forecast = await _getWeatherForecast(assistantLocation, true);
+  parameters: ForecastParameters,
+  function: async ({ location }) => {
+    const forecast = await _getWeatherForecast(location, true);
     return forecast;
   },
 });
