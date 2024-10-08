@@ -1,5 +1,5 @@
 import { Cobra } from '@picovoice/cobra-node';
-import { askLLM } from './ask';
+import { askLLM } from './openai/ask';
 import {
   ASSISTANT_MAX_RECORDING_LENGTH,
   ASSISTANT_ONLY_SILENCE_TIMEOUT,
