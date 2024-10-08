@@ -6,6 +6,14 @@ import { ADDRESS, GEOCODIO_API_KEY } from '../../env';
 import { parentLogger } from '../../logger';
 import { fetchJSON } from '../../utils/fetchJson';
 
+/**
+ * @file Tools for getting weather forecasts. Uses the Weather.gov API
+ * to get the forecast for a lat/lon. Uses the Geocodio API to get the
+ * latitude and longitude for a location.
+ * @see https://www.weather.gov/documentation/services-web-api
+ * @see https://api.weather.gov/openapi.json - for Swagger docs
+ */
+
 const logger = parentLogger.child({ filename: 'weather' });
 
 const geocoder = new Geocodio(GEOCODIO_API_KEY);
@@ -78,7 +86,6 @@ async function _getWeatherForecast(location: string | null, useHourly = false) {
 
   const forecastUrl = useHourly ? urls.forecastHourly : urls.forecast;
   const data = await fetchJSON(forecastUrl);
-  logger.debug(data, 'Weather forecast data');
 
   const forecast = JSON.stringify(data.properties);
   return forecast;

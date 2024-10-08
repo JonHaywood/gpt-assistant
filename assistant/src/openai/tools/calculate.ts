@@ -18,19 +18,19 @@ export const calculate = zodFunction({
   },
 });
 
-// const CalculateWithSubstitutesParameters = z.object({
-//   expression: z.string().describe('Mathematical expression to evaluate.'),
-//   values: z
-//     .record(z.number())
-//     .describe('Values to substitute into the expression.'),
-// });
+const CalculateWithSubstitutesParameters = z.object({
+  expression: z.string().describe('Mathematical expression to evaluate.'),
+  values: z
+    .object({})
+    .describe('Values to substitute into the expression. Example: {"x": 5}'),
+});
 
-// export const calculateWithSubtitutes = zodFunction({
-//   name: 'calculateWithSubtitutes',
-//   description: 'Calculate a mathematical expression with substitutes.',
-//   parameters: CalculateWithSubstitutesParameters,
-//   function: ({ expression, values }) => {
-//     const result = parser.parse(expression).evaluate(values);
-//     return result.toString();
-//   },
-// });
+export const calculateWithSubtitutes = zodFunction({
+  name: 'calculateWithSubtitutes',
+  description: 'Calculate a mathematical expression with substitutes.',
+  parameters: CalculateWithSubstitutesParameters,
+  function: ({ expression, values }) => {
+    const result = parser.parse(expression).evaluate(values);
+    return result.toString();
+  },
+});
