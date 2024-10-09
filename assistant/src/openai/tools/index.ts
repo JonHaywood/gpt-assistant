@@ -7,6 +7,7 @@ import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
 
 const logger = parentLogger.child({ filename: 'tools' });
 
+// TODO: in the future user should be able to toggle which tools are enabled
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const allTools: AutoParseableTool<any>[] = [
   calculate,
