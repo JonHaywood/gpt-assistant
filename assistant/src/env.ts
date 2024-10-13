@@ -11,6 +11,10 @@ function getEnvVar(name: string, defaultValue: string): string {
 }
 
 export const PICOVOICE_ACCESS_KEY = getRequiredEnvVar('PICOVOICE_ACCESS_KEY');
+export const VOLUME_CONTROL_DEVICE = getRequiredEnvVar('VOLUME_CONTROL_DEVICE');
+export const VOLUME_CONTROL_DEVICE_INDEX = parseInt(
+  getRequiredEnvVar('VOLUME_CONTROL_DEVICE_INDEX'),
+);
 export const OPENAI_MODEL = getEnvVar('OPENAI_MODEL', '4o');
 export const DEVICE_INDEX = parseInt(getEnvVar('DEVICE_INDEX', '2'));
 export const WAKEWORD_THRESHOLD = parseFloat(

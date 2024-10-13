@@ -2,21 +2,30 @@ import { AutoParseableTool } from 'openai/lib/parser.mjs';
 import { ChatCompletionMessageToolCall } from 'openai/resources/index.mjs';
 import { parentLogger } from '../../logger';
 import { calculate, calculateWithSubtitutes } from './calculate';
-//import { clock } from './clock';
+import { clock } from './clock';
 import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
-import { shutdown } from './shutdown';
+import { triggerShutdown } from './system';
+import { adjustVolume, getVolume, setVolume } from './volume';
 
 const logger = parentLogger.child({ filename: 'tools' });
 
 // TODO: in the future user should be able to toggle which tools are enabled
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const allTools: AutoParseableTool<any>[] = [
+  // calculate tools
   calculate,
   calculateWithSubtitutes,
-  //clock,
+  // clock tools
+  clock,
+  // weather tools
   getHourlyWeatherForecast,
   getWeatherForecast,
-  shutdown,
+  // volume tools
+  getVolume,
+  adjustVolume,
+  setVolume,
+  // system tools
+  triggerShutdown,
 ];
 
 export interface Tools {

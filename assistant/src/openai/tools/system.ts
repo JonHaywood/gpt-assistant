@@ -8,7 +8,7 @@ const logger = parentLogger.child({ filename: 'shutdown' });
 
 const NoParameters = z.object({});
 
-export const shutdown = zodFunction({
+export const triggerShutdown = zodFunction({
   name: 'shutdown',
   description: 'Shuts down the assistant.',
   parameters: NoParameters,

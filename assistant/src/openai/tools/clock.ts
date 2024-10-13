@@ -8,7 +8,7 @@ const NoParameters = z.object({});
 export const clock = zodFunction({
   name: 'clock',
   description:
-    "Useful for getting the current Date and time, Format is 'YYYY-MM-DD HH:mm:ss Z', if you don't know the time now, you can use this tool to get the current time.",
+    "Getting the current date and time, Format is 'YYYY-MM-DD HH:mm:ss Z'.",
   parameters: NoParameters,
   function: (_args = {}) => {
     if (TIMEZONE) {
