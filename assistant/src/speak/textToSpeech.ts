@@ -1,6 +1,6 @@
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
-import { AppLevelAbortController } from 'src/utils/abort';
 import { parentLogger } from '../logger';
+import { getAppLevelAbortSignal } from '../shutdown';
 
 const logger = parentLogger.child({ filename: 'textToSpeech' });
 
@@ -18,7 +18,7 @@ export function getCurrentPiperTTSProcess() {
  * because the tts model is already loaded into memory.
  */
 export function startPiperTTSProcess() {
-  const { signal } = AppLevelAbortController;
+  const signal = getAppLevelAbortSignal();
 
   logger.info('Starting new Piper TTS process...');
 

@@ -1,5 +1,5 @@
 import { WaveFile } from 'wavefile';
-import { type AudioBuffer } from 'src/listener.types';
+import { type AudioBuffer } from '../listener.types';
 
 export function concatAudioBuffers(buffers: AudioBuffer[]): AudioBuffer {
   const totalLength = buffers.reduce((sum, arr) => sum + arr.length, 0);

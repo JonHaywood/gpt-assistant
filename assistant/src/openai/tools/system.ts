@@ -1,8 +1,9 @@
 import { zodFunction } from 'openai/helpers/zod';
 import { z } from 'zod';
 import { parentLogger } from '../../logger';
+import { signalSystemShutdown } from '../../shutdown';
 import { speak } from '../../speak';
-import { AppLevelAbortController } from '../../utils/abort';
+import { AbortError } from '../../utils/abort';
 
 const logger = parentLogger.child({ filename: 'shutdown' });
 
@@ -17,6 +18,9 @@ export const triggerShutdown = zodFunction({
     logger.info(
       'Received shutdown command from user. Shutting down assistant.',
     );
-    AppLevelAbortController.abort();
+    signalSystemShutdown();
+
+    // throw an abort error to stop execution
+    throw new AbortError();
   },
 });

@@ -1,9 +1,11 @@
 export const AbortErrorMessage = 'The operation was aborted';
 
-/**
- * Manage the abort state of the entire application.
- */
-export const AppLevelAbortController = new AbortController();
+export class AbortError extends Error {
+  constructor() {
+    super(AbortErrorMessage);
+    this.name = 'AbortError';
+  }
+}
 
 /**
  * Creates a new AbortController that will be aborted if any of the

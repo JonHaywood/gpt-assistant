@@ -1,10 +1,7 @@
 import { spawn } from 'child_process';
-import {
-  AbortErrorMessage,
-  AppLevelAbortController,
-  combineAbortControllers,
-} from 'src/utils/abort';
+import { AbortErrorMessage } from '../utils/abort';
 import { parentLogger } from '../logger';
+import { createChildAbortController } from '../shutdown';
 import { getCurrentPiperTTSProcess } from './textToSpeech';
 
 const logger = parentLogger.child({ filename: 'speak' });
@@ -20,10 +17,7 @@ export function speak(text: string): Promise<void> {
   stopCurrentSpeaking();
 
   // manages the abort signal for the child speaker process
-  speakerAbortController = combineAbortControllers(
-    AppLevelAbortController,
-    new AbortController(),
-  );
+  speakerAbortController = createChildAbortController();
   const { signal } = speakerAbortController;
 
   logger.info(`🔊 Speaking: ${text}`);

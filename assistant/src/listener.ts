@@ -3,7 +3,7 @@ import { PvRecorder } from '@picovoice/pvrecorder-node';
 import { DEVICE_INDEX } from './env';
 import { ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
-import { AppLevelAbortController } from './utils/abort';
+import { getAppLevelAbortSignal } from './shutdown';
 import { FRAME_LENGTH } from './wakeword';
 
 const logger = parentLogger.child({ filename: 'listener' });
@@ -18,7 +18,7 @@ export const SAMPLE_RATE = recorder.sampleRate;
  * @param callback - function to process each frame of audio data.
  */
 export async function listen(callback: ListenerDataCallback): Promise<void> {
-  const { signal } = AppLevelAbortController;
+  const signal = getAppLevelAbortSignal();
   if (signal.aborted) throw new Error('Signal is already aborted');
 
   // listen for abort signal
