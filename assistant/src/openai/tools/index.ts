@@ -4,6 +4,7 @@ import { parentLogger } from '../../logger';
 import { calculate, calculateWithSubtitutes } from './calculate';
 //import { clock } from './clock';
 import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
+import { shutdown } from './shutdown';
 
 const logger = parentLogger.child({ filename: 'tools' });
 
@@ -15,6 +16,7 @@ const allTools: AutoParseableTool<any>[] = [
   //clock,
   getHourlyWeatherForecast,
   getWeatherForecast,
+  shutdown,
 ];
 
 export interface Tools {
