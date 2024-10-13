@@ -11,7 +11,8 @@ const NoParameters = z.object({});
 
 export const triggerShutdown = zodFunction({
   name: 'shutdown',
-  description: 'Shuts down the assistant.',
+  description:
+    'Shuts down the assistant. If the user asks you to shutdown, call this tool.',
   parameters: NoParameters,
   function: async (_args = {}) => {
     await speak('Of course. Shutting down now.');

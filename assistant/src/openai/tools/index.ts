@@ -1,11 +1,12 @@
 import { AutoParseableTool } from 'openai/lib/parser.mjs';
 import { ChatCompletionMessageToolCall } from 'openai/resources/index.mjs';
 import { parentLogger } from '../../logger';
+import { AbortError } from '../../utils/abort';
 import { calculate, calculateWithSubtitutes } from './calculate';
 import { clock } from './clock';
-import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
 import { triggerShutdown } from './system';
 import { adjustVolume, getVolume, setVolume } from './volume';
+import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
 
 const logger = parentLogger.child({ filename: 'tools' });
 
@@ -65,6 +66,9 @@ export const tools: Tools = {
 
       return JSON.stringify(result);
     } catch (error) {
+      // allow the tool to throw an AbortError to stop execution
+      if (error instanceof AbortError) throw error;
+
       logger.error(error, `❔ ChatGPT tool error`);
       return 'An error occurred while running the tool.';
     }

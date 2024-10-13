@@ -4,6 +4,7 @@ import {
 } from 'openai/resources/index';
 import { ASSISTANT_NAME } from '../env';
 import { parentLogger } from '../logger';
+import { AbortError } from '../utils/abort';
 import { openai, OpenAIModel } from './client';
 import { addToChatHistory, getChatHistory } from './history';
 import { tools } from './tools';
@@ -108,6 +109,9 @@ export async function askLLM(question: string): Promise<string> {
 
     return response;
   } catch (error) {
+    // stop execution if an AbortError is thrown
+    if (error instanceof AbortError) throw error;
+
     logger.error(error, 'Error occurred while querying ChatGPT');
     return GENERIC_ERROR_RESPONSE;
   }

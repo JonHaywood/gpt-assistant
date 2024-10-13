@@ -1,5 +1,4 @@
 import { Cobra } from '@picovoice/cobra-node';
-import { askLLM } from './openai/ask';
 import {
   ASSISTANT_MAX_RECORDING_LENGTH,
   ASSISTANT_ONLY_SILENCE_TIMEOUT,
@@ -10,9 +9,11 @@ import {
 import { SAMPLE_RATE } from './listener';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
+import { askLLM } from './openai/ask';
 import { recognize } from './recognizer';
 import { speak, stopCurrentSpeaking } from './speak';
 import { detectStopCommand } from './stopDetector';
+import { AbortError } from './utils/abort';
 import { concatAudioBuffers, frameDuration } from './utils/audio';
 
 const logger = parentLogger.child({ filename: 'assistant' });
@@ -97,7 +98,7 @@ export class Assistant {
         this.silenceDuration >= ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT;
       if (isSilenceAfterVoice) {
         logger.info('🎤️ Audio phrase detected!');
-        this.transcribeAndSpeak();
+        await this.transcribeAndSpeak();
         return;
       }
 
@@ -118,7 +119,10 @@ export class Assistant {
         throw new Error('💢 Something weird happened. Stopping listening.');
       }
     } catch (error) {
-      logger.error(error, 'Error ocurred handling audio data');
+      if (error instanceof AbortError)
+        logger.info('Stopping assistant loop due to abort signal.');
+      else logger.error(error, 'Error ocurred handling audio data');
+
       this.stop();
     }
   }
