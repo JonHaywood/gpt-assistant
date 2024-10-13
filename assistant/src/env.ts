@@ -16,7 +16,9 @@ export const DEVICE_INDEX = parseInt(getEnvVar('DEVICE_INDEX', '2'));
 export const WAKEWORD_THRESHOLD = parseFloat(
   getEnvVar('WAKEWORD_THRESHOLD', '0.5'),
 );
-export const ASSISTANT_NAME = getEnvVar('ASSISTANT_NAME', 'jarvis');
+export const ASSISTANT_NAME = getEnvVar('ASSISTANT_NAME', 'Bailiwick');
+export const ASSISTANT_NAME_IS_CUSTOM =
+  getEnvVar('ASSISTANT_NAME_IS_CUSTOM', 'true') === 'true';
 export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(
   getEnvVar('ASSISTANT_LISTEN_TIMEOUT', '5000'),
 );

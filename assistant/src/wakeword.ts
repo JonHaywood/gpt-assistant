@@ -1,6 +1,8 @@
-import { Porcupine, BuiltinKeyword } from '@picovoice/porcupine-node';
+import { Porcupine } from '@picovoice/porcupine-node';
+import path from 'path';
 import {
   ASSISTANT_NAME,
+  ASSISTANT_NAME_IS_CUSTOM,
   PICOVOICE_ACCESS_KEY,
   WAKEWORD_THRESHOLD,
 } from './env';
@@ -9,23 +11,14 @@ import { parentLogger } from './logger';
 
 const logger = parentLogger.child({ filename: 'wakeword' });
 
-// matchup assistant name to keyword
-let builtInKeyword: string | undefined;
-for (const keyword of Object.values(BuiltinKeyword)) {
-  if (keyword.toLowerCase() === ASSISTANT_NAME.toLowerCase()) {
-    builtInKeyword = keyword;
-    break;
-  }
-}
-if (!builtInKeyword)
-  throw new Error(
-    `No built-in keyword found for assistant name: ${ASSISTANT_NAME}`,
-  );
-
 // instance of porcupine wake word engine
 const porcupine = new Porcupine(
   PICOVOICE_ACCESS_KEY,
-  [builtInKeyword],
+  [
+    ASSISTANT_NAME_IS_CUSTOM
+      ? path.resolve(`assets/${ASSISTANT_NAME.toLowerCase()}.ppn`)
+      : ASSISTANT_NAME, // NOTE: if string is not a built-in keyword this will fail
+  ],
   [WAKEWORD_THRESHOLD],
 );
 

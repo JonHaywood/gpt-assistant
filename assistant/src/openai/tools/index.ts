@@ -2,7 +2,7 @@ import { AutoParseableTool } from 'openai/lib/parser.mjs';
 import { ChatCompletionMessageToolCall } from 'openai/resources/index.mjs';
 import { parentLogger } from '../../logger';
 import { calculate, calculateWithSubtitutes } from './calculate';
-import { clock } from './clock';
+//import { clock } from './clock';
 import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
 
 const logger = parentLogger.child({ filename: 'tools' });
@@ -12,7 +12,7 @@ const logger = parentLogger.child({ filename: 'tools' });
 const allTools: AutoParseableTool<any>[] = [
   calculate,
   calculateWithSubtitutes,
-  clock,
+  //clock,
   getHourlyWeatherForecast,
   getWeatherForecast,
 ];
