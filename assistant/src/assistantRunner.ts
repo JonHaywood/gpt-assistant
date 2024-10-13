@@ -1,4 +1,3 @@
-// @ts-ignore
 import { Assistant } from './assistant';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';

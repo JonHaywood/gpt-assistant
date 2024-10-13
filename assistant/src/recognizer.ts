@@ -1,8 +1,8 @@
 import { toFile } from 'openai';
-import { parentLogger } from './logger';
-import { openai } from './openai';
-import { type AudioBuffer } from './listener.types';
 import { SAMPLE_RATE } from './listener';
+import { type AudioBuffer } from './listener.types';
+import { parentLogger } from './logger';
+import { openai } from './openai/client';
 import { convertRawAudioToWav } from './utils/audio';
 
 const logger = parentLogger.child({ filename: 'recognizer' });

@@ -1,10 +1,8 @@
-// @ts-nocheck
-import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
+// @ts-expect-error - no types available for the pvrecorder-node package
 import { PvRecorder } from '@picovoice/pvrecorder-node';
-import { DEVICE_INDEX, PICOVOICE_ACCESS_KEY } from './env';
-import { type AudioBuffer, ListenerDataCallback } from './listener.types';
+import { DEVICE_INDEX } from './env';
+import { ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
-import { playEffect, SoundEffect } from './soundEffects';
 import { AppLevelAbortController } from './utils/abort';
 import { FRAME_LENGTH } from './wakeword';
 

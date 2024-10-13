@@ -1,5 +1,4 @@
 import fs from 'fs/promises';
-// @ts-ignore
 import { parentLogger } from './logger';
 import { Readable } from 'stream';
 import { spawn } from 'child_process';
@@ -49,7 +48,7 @@ export function playEffect(effect: SoundEffect) {
   // reading from the file each time.
   Readable.from(audioBuffer).pipe(aplay.stdin);
 
-  aplay.on('error', (error: any) => {
+  aplay.on('error', (error) => {
     logger.error(error, `Error playing sound effect: ${effect}`);
   });
 
