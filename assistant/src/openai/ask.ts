@@ -2,23 +2,14 @@ import {
   ChatCompletion,
   ChatCompletionMessageParam,
 } from 'openai/resources/index';
-import { ASSISTANT_NAME } from '../env';
 import { parentLogger } from '../logger';
 import { AbortError } from '../utils/abort';
 import { openai, OpenAIModel } from './client';
 import { addToChatHistory, getChatHistory } from './history';
+import { SYSTEM_PROMPT } from './prompt';
 import { tools } from './tools';
 
 const logger = parentLogger.child({ filename: 'ask' });
-
-const SYSTEM_PROMPT = `
-  You are a helpful home assistant named ${ASSISTANT_NAME}. Provide short, concise
-  responses to user questions that can easily be converted from text to speech, with minimal
-  punctuation and abbreviations. Aim for a conversational tone, friendly but proper, that is
-  upbeat and engaging in the style of Baileywick from the TV Show Sofia the First. If you
-  don't know the answer to a question, and there is no tool to invoke, you can say that you're
-  not sure.
-`;
 
 const GENERIC_ERROR_RESPONSE =
   "I'm sorry, I ran into an issue. Please try again.";
