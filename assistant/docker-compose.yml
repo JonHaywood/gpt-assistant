@@ -5,7 +5,13 @@ services:
     privileged: true # Gives the container permission to access to hardware
     network_mode: host # Uses the host network stack for the container
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY} # API key for the OpenAI API
+      - PICOVOICE_ACCESS_KEY=${PICOVOICE_ACCESS_KEY} # Access key for the Picovoice SDK
+      - VOLUME_CONTROL_DEVICE=${VOLUME_CONTROL_DEVICE} # The audio device to use for volume control
+      - VOLUME_CONTROL_DEVICE_INDEX=${VOLUME_CONTROL_DEVICE_INDEX} # The index of the audio device to use for volume control
+      - ADDRESS=${ADDRESS} # Address for weather information
+      - TIMEZONE=${TIMEZONE}
+      - GEOCODIO_API_KEY=${GEOCODIO_API_KEY} # API key for the Geocodio API for weather lookup
     volumes:
       - ~/gpt-assistant:/app # Mounts the local directory ~/gpt-assistant to /app in the container
       - /etc/asound.conf:/etc/asound.conf # Audio config needed for audio to work
