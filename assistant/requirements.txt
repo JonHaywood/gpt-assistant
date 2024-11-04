@@ -1,0 +1,2 @@
+# Install Piper TTS for on-device text-to-speech functionality
+piper-tts
