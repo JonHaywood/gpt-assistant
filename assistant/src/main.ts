@@ -1,6 +1,7 @@
 import { handleAudioData } from './assistantRunner';
 import { listen } from './listener';
 import { parentLogger } from './logger';
+import { startWebSocketServer, stopWebSocketServer } from './server';
 import { setupProcessShutdownHandlers } from './shutdown';
 import { loadEffectsIntoMemory } from './soundEffects';
 import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
@@ -22,11 +23,17 @@ async function main() {
     // start the first TTS process
     startPiperTTSProcess();
 
+    // start the WebSocket server for log streaming
+    startWebSocketServer();
+
     // start the listening loop
     await listen(handleAudioData);
 
     // stop the TTS process
     stopPiperTTSProcess();
+
+    // stop the WebSocket server
+    await stopWebSocketServer();
 
     // shutdown all other services
     shutdownStopDetector();
