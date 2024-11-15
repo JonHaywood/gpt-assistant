@@ -1,4 +1,6 @@
 import pino from 'pino';
+import path from 'path';
+import { LOG_LEVEL } from './env';
 
 // Define ANSI color escape codes
 const colors = {
@@ -9,17 +11,35 @@ const colors = {
   yellow: '\x1b[33m',
 };
 
-export const parentLogger = pino({
-  level: 'trace',
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      ignore: 'filename,hostname',
-      messageFormat: `${colors.yellow}{filename}${colors.reset}: {msg}`,
-    },
+// create console transport
+const consoleTransport = pino.transport({
+  target: 'pino-pretty',
+  options: {
+    colorize: true,
+    ignore: 'filename,hostname',
+    messageFormat: `${colors.yellow}{filename}${colors.reset}: {msg}`,
   },
 });
+
+// Create the file transport using `pino-roll`
+const fileTransport = pino.transport({
+  target: 'pino-roll',
+  options: {
+    file: path.join('logs', 'app.log'), // Log file location
+    frequency: 'daily', // Rotate logs daily
+    size: '10M', // Rotate when file size exceeds 10MB
+    mkdir: true, // Create directory if it doesn't exist
+    symlink: true, // Create a symlink to the latest log file
+  },
+});
+
+export const parentLogger = pino(
+  {
+    level: LOG_LEVEL,
+  },
+  // multistream is used to direct logs to multiple destinations
+  pino.multistream([{ stream: consoleTransport }, { stream: fileTransport }]),
+);
 
 /**
  * Flushes any buffered logs to the output stream.

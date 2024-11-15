@@ -39,3 +39,4 @@ export const ASK_HISTORY_SIZE = parseInt(getEnvVar('ASK_HISTORY_SIZE', '5'));
 export const ADDRESS = getEnvVar('ADDRESS', '');
 export const TIMEZONE = getEnvVar('TIMEZONE', '');
 export const GEOCODIO_API_KEY = getEnvVar('GEOCODIO_API_KEY', '');
+export const LOG_LEVEL = getEnvVar('LOG_LEVEL', 'trace');
