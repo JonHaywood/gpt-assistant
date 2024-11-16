@@ -38,7 +38,10 @@ export const parentLogger = pino(
     level: LOG_LEVEL,
   },
   // multistream is used to direct logs to multiple destinations
-  pino.multistream([{ stream: consoleTransport }, { stream: fileTransport }]),
+  pino.multistream([
+    { level: LOG_LEVEL, stream: consoleTransport },
+    { level: LOG_LEVEL, stream: fileTransport },
+  ]),
 );
 
 /**
