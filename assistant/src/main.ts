@@ -1,12 +1,12 @@
 import { handleAudioData } from './assistantRunner';
 import { listen } from './listener';
 import { parentLogger } from './logger';
-import { startWebSocketServer, stopWebSocketServer } from './server';
 import { setupProcessShutdownHandlers } from './shutdown';
 import { loadEffectsIntoMemory } from './soundEffects';
 import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
 import { shutdownStopDetector } from './stopDetector';
 import { shutdownWakewordEngine } from './wakeword';
+import { startWebSocketServer, stopWebSocketServer } from './webSocket/main';
 
 const logger = parentLogger.child({ filename: 'main' });
 
@@ -17,14 +17,14 @@ async function main() {
     // gracefully handle app/process shutdown
     setupProcessShutdownHandlers();
 
+    // start the WebSocket server for log streaming
+    startWebSocketServer();
+
     // load all sound effects into memory
     await loadEffectsIntoMemory();
 
     // start the first TTS process
     startPiperTTSProcess();
-
-    // start the WebSocket server for log streaming
-    startWebSocketServer();
 
     // start the listening loop
     await listen(handleAudioData);
