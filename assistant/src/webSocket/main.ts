@@ -17,38 +17,44 @@ const websocketScriptPath = isDev
 /**
  * Starts the WebSocket server in a child process.
  */
-export function startWebSocketServer() {
-  // pass the current environment variables to the child process
-  const env = process.env;
+export function startWebSocketServer(): Promise<void> {
+  return new Promise((resolve) => {
+    // pass the current environment variables to the child process
+    const env = process.env;
 
-  const options = isDev
-    ? { execArgv: ['-r', 'ts-node/register'], env } // Use ts-node for TypeScript in dev
-    : { env }; // No special options for production
+    const options = isDev
+      ? { execArgv: ['-r', 'ts-node/register'], env } // Use ts-node for TypeScript in dev
+      : { env }; // No special options for production
 
-  // spawn a new child process for the WebSocket server
-  logger.trace('Creating server process...');
-  websocketServerProcess = fork(websocketScriptPath, [], options);
+    // spawn a new child process for the WebSocket server
+    logger.info('Creating server process...');
+    websocketServerProcess = fork(websocketScriptPath, [], options);
 
-  // handle child process exit and error events
-  websocketServerProcess.on('exit', (code, signal) => {
-    logger.trace(`Server exited with code ${code}, signal ${signal}`);
-    websocketServerProcess = null;
+    // once the server is started, resolve the promise
+    websocketServerProcess.once('message', (message) => {
+      if (message === 'ws-server-started') {
+        resolve();
+      }
+    });
 
-    // server exited normally, do not restart
-    if (signal === 'SIGINT' || signal === 'SIGTERM' || code === 0) {
-      logger.info('Server process stopped.');
-      return;
-    }
+    // handle child process exit and error events
+    websocketServerProcess.on('exit', (code, signal) => {
+      websocketServerProcess = null;
 
-    logger.info('Restarting server...');
-    startWebSocketServer();
+      // server exited normally, do not restart
+      if (signal === 'SIGINT' || signal === 'SIGTERM' || code === 0) {
+        logger.info('Server process stopped.');
+        return;
+      }
+
+      logger.info('Restarting server...');
+      startWebSocketServer();
+    });
+
+    websocketServerProcess.on('error', (error) => {
+      console.error('Server encountered an error:', error);
+    });
   });
-
-  websocketServerProcess.on('error', (error) => {
-    console.error('Server encountered an error:', error);
-  });
-
-  logger.info('Server process successfully created.');
 }
 
 /**
@@ -62,8 +68,6 @@ export async function stopWebSocketServer() {
       resolve();
       return;
     }
-
-    logger.trace('Stopping server process...');
 
     // handle the edge case where the process somehow is already killed
     if (websocketServerProcess.killed) {

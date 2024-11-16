@@ -18,7 +18,7 @@ async function main() {
     setupProcessShutdownHandlers();
 
     // start the WebSocket server for log streaming
-    startWebSocketServer();
+    await startWebSocketServer();
 
     // load all sound effects into memory
     await loadEffectsIntoMemory();

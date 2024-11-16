@@ -45,13 +45,11 @@ function cleanUp(): void {
   if (logTail) {
     logTail.unwatch();
     logTail = null;
-    logger.trace('🔌: Log tailing stopped.');
   }
 
   if (webSocketServer) {
     webSocketServer.close();
     webSocketServer = null;
-    logger.trace('🔌: WebSocket server stopped.');
   }
 }
 
@@ -107,12 +105,20 @@ async function main() {
     },
   );
 
-  // start watching the log file
-  watchLogFile();
+  // code that runs when the server is fully started and is listening
+  webSocketServer.on('listening', () => {
+    // now that server is ready, start watching the log file
+    watchLogFile();
 
-  logger.info(
-    `🚀 Web socket server listening at ws://localhost:${LOGGING_WS_PORT}`,
-  );
+    logger.info(
+      `🚀 Web socket server listening at ws://localhost:${LOGGING_WS_PORT}`,
+    );
+
+    // notify the parent process that the server has started
+    if (process.send) {
+      process.send('ws-server-started');
+    }
+  });
 }
 
 main();
