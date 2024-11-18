@@ -1,2 +1,2 @@
-# top level git ignore
-node_modules
+# local env files
+.env*.local

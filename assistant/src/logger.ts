@@ -1,6 +1,6 @@
 import pino from 'pino';
 import path from 'path';
-import { LOG_LEVEL } from './env';
+import { LOG_LEVEL } from './config';
 
 // Define ANSI color escape codes
 const colors = {

@@ -1,6 +1,6 @@
 // @ts-expect-error - no types available for the pvrecorder-node package
 import { PvRecorder } from '@picovoice/pvrecorder-node';
-import { DEVICE_INDEX } from './env';
+import { DEVICE_INDEX } from './config';
 import { ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
 import { getAppLevelAbortSignal } from './shutdown';

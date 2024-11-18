@@ -1,5 +1,5 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index';
-import { ASK_HISTORY_SIZE } from '../env';
+import { ASK_HISTORY_SIZE } from '../config';
 
 const chatHistory: Array<ChatCompletionMessageParam> = [];
 

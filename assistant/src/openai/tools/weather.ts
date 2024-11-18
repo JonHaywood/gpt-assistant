@@ -2,7 +2,7 @@ import { zodFunction } from 'openai/helpers/zod';
 // @ts-expect-error - no types
 import Geocodio from 'geocodio-library-node';
 import { z } from 'zod';
-import { ADDRESS, GEOCODIO_API_KEY } from '../../env';
+import { ADDRESS, GEOCODIO_API_KEY } from '../../config';
 import { parentLogger } from '../../logger';
 import { fetchJSON } from '../../utils/fetchJson';
 

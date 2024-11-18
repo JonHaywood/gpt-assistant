@@ -5,7 +5,7 @@ import {
   ASSISTANT_NAME_IS_CUSTOM,
   PICOVOICE_ACCESS_KEY,
   WAKEWORD_THRESHOLD,
-} from './env';
+} from './config';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
 

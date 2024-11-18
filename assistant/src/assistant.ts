@@ -5,7 +5,7 @@ import {
   ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT,
   ASSISTANT_VOICEDETECTION_THRESHOLD,
   PICOVOICE_ACCESS_KEY,
-} from './env';
+} from './config';
 import { SAMPLE_RATE } from './listener';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';

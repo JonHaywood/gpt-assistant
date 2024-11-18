@@ -1,4 +1,4 @@
-import { ASSISTANT_NAME } from '../env';
+import { ASSISTANT_NAME } from '../config';
 
 export const SYSTEM_PROMPT = `
   You are a helpful home assistant named ${ASSISTANT_NAME}. Provide short, concise

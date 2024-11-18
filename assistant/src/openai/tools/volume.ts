@@ -2,7 +2,10 @@ import { zodFunction } from 'openai/helpers/zod';
 import { z } from 'zod';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { VOLUME_CONTROL_DEVICE, VOLUME_CONTROL_DEVICE_INDEX } from '../../env';
+import {
+  VOLUME_CONTROL_DEVICE,
+  VOLUME_CONTROL_DEVICE_INDEX,
+} from '../../config';
 
 // Promisify the exec function to use it with async/await
 const execAsync = promisify(exec);

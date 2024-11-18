@@ -1,7 +1,7 @@
 import { zodFunction } from 'openai/helpers/zod';
 import { z } from 'zod';
 import { formatInTimeZone } from 'date-fns-tz';
-import { TIMEZONE } from '../../env';
+import { TIMEZONE } from '../../config';
 
 const NoParameters = z.object({});
 

@@ -1,6 +1,6 @@
 import { Porcupine } from '@picovoice/porcupine-node';
 import path from 'path';
-import { PICOVOICE_ACCESS_KEY } from './env';
+import { PICOVOICE_ACCESS_KEY } from './config';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
 

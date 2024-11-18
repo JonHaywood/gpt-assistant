@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { OPENAI_MODEL } from '../env';
+import { OPENAI_MODEL } from '../config';
 
 const OpenAIModels = {
   '3': 'gpt-3.5-turbo',

@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http';
 import { resolve } from 'path';
 import { Tail } from 'tail';
 import { WebSocket, WebSocketServer } from 'ws';
-import { LOGGING_WS_PORT } from '../env';
+import { LOGGING_WS_PORT } from '../config';
 import { parentLogger } from '../logger';
 
 /**

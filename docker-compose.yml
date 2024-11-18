@@ -1,4 +1,5 @@
 networks:
+  # shared network for the assistant and webapp services
   gpt-assistant:
     driver: bridge
 
@@ -19,6 +20,7 @@ services:
       - ./assistant/src:/app/src # Mount source code for real-time updates in the container
       - ./assistant/package.json:/app/package.json # Mount package.json
       - ./assistant/package-lock.json:/app/package-lock.json # Mount package-lock.json
+      - ./config.json:/app/config.json # Mount the config file
       - /etc/asound.conf:/etc/asound.conf # Audio config needed for audio to work
       - /dev/snd:/dev/snd # Gives access to the sound devices on the host machine
       - /dev/shm:/dev/shm # Hardware that needs to be mounted for audio to work
@@ -42,6 +44,7 @@ services:
       - ./webapp/public:/app/public # Mount public directory
       - ./webapp/package.json:/app/package.json # Mount package.json
       - ./webapp/package-lock.json:/app/package-lock.json # Mount package-lock.json
+      - ./config.json:/app/config.json # Mount the config file
     networks:
       - gpt-assistant
     ports:
