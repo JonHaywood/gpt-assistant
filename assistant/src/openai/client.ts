@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { OPENAI_MODEL } from '../config';
+import { OPENAI_API_KEY, OPENAI_MODEL } from '../config';
 
 const OpenAIModels = {
   '3': 'gpt-3.5-turbo',
@@ -19,4 +19,4 @@ if (!model) throw new Error(`No model found for OpenAI model: ${OPENAI_MODEL}`);
 export const OpenAIModel = model;
 
 // instance of OpenAI API client
-export const openai = new OpenAI();
+export const openai = new OpenAI({ apiKey: OPENAI_API_KEY });

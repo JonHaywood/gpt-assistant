@@ -8,14 +8,6 @@ services:
     build: ./assistant # Builds the Docker image using the Dockerfile in the assistant directory
     restart: unless-stopped
     privileged: true # Gives the container permission to access to hardware
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY} # API key for the OpenAI API
-      - PICOVOICE_ACCESS_KEY=${PICOVOICE_ACCESS_KEY} # Access key for the Picovoice SDK
-      - VOLUME_CONTROL_DEVICE=${VOLUME_CONTROL_DEVICE} # The audio device to use for volume control
-      - VOLUME_CONTROL_DEVICE_INDEX=${VOLUME_CONTROL_DEVICE_INDEX} # The index of the audio device to use for volume control
-      - ADDRESS=${ADDRESS} # Address for weather information
-      - TIMEZONE=${TIMEZONE}
-      - GEOCODIO_API_KEY=${GEOCODIO_API_KEY} # API key for the Geocodio API for weather lookup
     volumes:
       - ./assistant/src:/app/src # Mount source code for real-time updates in the container
       - ./assistant/package.json:/app/package.json # Mount package.json

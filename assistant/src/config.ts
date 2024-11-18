@@ -39,6 +39,7 @@ function getConfigVar(name: string, defaultValue: string): string {
   return config[name] ?? defaultValue;
 }
 
+export const OPENAI_API_KEY = getRequiredConfigVar('OPENAI_API_KEY');
 export const PICOVOICE_ACCESS_KEY = getRequiredConfigVar(
   'PICOVOICE_ACCESS_KEY',
 );
