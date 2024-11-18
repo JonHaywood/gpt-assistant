@@ -1,9 +1,12 @@
+networks:
+  gpt-assistant:
+    driver: bridge
+
 services:
   assistant:
     build: ./assistant # Builds the Docker image using the Dockerfile in the assistant directory
     restart: unless-stopped
     privileged: true # Gives the container permission to access to hardware
-    network_mode: host # Uses the host network stack for the container
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY} # API key for the OpenAI API
       - PICOVOICE_ACCESS_KEY=${PICOVOICE_ACCESS_KEY} # Access key for the Picovoice SDK
@@ -21,6 +24,10 @@ services:
       - /dev/shm:/dev/shm # Hardware that needs to be mounted for audio to work
       - /usr/share/alsa:/usr/share/alsa # alsa is for handling audio in Linux
       - /var/run/dbus:/var/run/dbus # allows programs on the same machine to communicate with each other
+    networks:
+      - gpt-assistant
+    ports:
+      - "8800:8800" # Maps port 8800 on the host to port 8800 in the container
     tmpfs:
       - /run # Used to store temporary files that are deleted on reboot
       - /run/lock # Used for preventing concurrent access to resources
@@ -35,6 +42,8 @@ services:
       - ./webapp/public:/app/public # Mount public directory
       - ./webapp/package.json:/app/package.json # Mount package.json
       - ./webapp/package-lock.json:/app/package-lock.json # Mount package-lock.json
+    networks:
+      - gpt-assistant
     ports:
       - "3000:3000" # Maps port 3000 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'

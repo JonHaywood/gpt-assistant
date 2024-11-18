@@ -40,4 +40,4 @@ export const ADDRESS = getEnvVar('ADDRESS', '');
 export const TIMEZONE = getEnvVar('TIMEZONE', '');
 export const GEOCODIO_API_KEY = getEnvVar('GEOCODIO_API_KEY', '');
 export const LOG_LEVEL = getEnvVar('LOG_LEVEL', 'trace');
-export const LOGGING_WS_PORT = parseInt(getEnvVar('LOGGING_WS_PORT', '8080'));
+export const LOGGING_WS_PORT = parseInt(getEnvVar('LOGGING_WS_PORT', '8800'));
