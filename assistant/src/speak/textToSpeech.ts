@@ -35,7 +35,8 @@ export function startPiperTTSProcess() {
 
   // Handle errors from piper
   piperProcess.on('error', (error) => {
-    logger.error(`Error running Piper: ${error.message}`);
+    if (error.name === 'AbortError') return;
+    logger.error(`Error running Piper:: ${error.name}:${error.message}`);
   });
 
   piperProcess.stdout.on('error', (error) => {
