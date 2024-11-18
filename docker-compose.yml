@@ -45,7 +45,7 @@ services:
     networks:
       - gpt-assistant
     ports:
-      - "3000:3000" # Maps port 3000 on the host to port 3000 in the container
+      - "8900:3000" # Maps port 8900 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
     command: bash # Overrides the default command and runs the bash shell
