@@ -32,7 +32,8 @@ COPY . .
 # Accept the websocket port build argument
 ARG NEXT_PUBLIC_ASSISTANT_WEBSOCKET_PORT
 
-# Set the websocket port  build argument as an environment variable
+# Since this is a client-side environment variable, need to set it before building
+# so it is bundled into the final build
 ENV NEXT_PUBLIC_ASSISTANT_WEBSOCKET_PORT=$NEXT_PUBLIC_ASSISTANT_WEBSOCKET_PORT
 
 # Build the application
