@@ -9,6 +9,7 @@ import {
   Settings2,
   ScrollText,
 } from "lucide-react";
+import packageJson from "../../package.json";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -29,7 +30,7 @@ const data = {
   },
   app: {
     name: "GPT-Assistant",
-    version: "v1.0.0",
+    version: `v${packageJson.version}`,
     subTitle: "Admin",
     icon: Bot,
   },
