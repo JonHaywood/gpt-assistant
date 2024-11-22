@@ -21,7 +21,7 @@ services:
     networks:
       - gpt-assistant
     ports:
-      - "8800:8800" # Maps port 8800 on the host to port 8800 in the container
+      - "8800:8800" # Maps port 8800 on the host to port 8800 in the container for websocket server
     tmpfs:
       - /run # Used to store temporary files that are deleted on reboot
       - /run/lock # Used for preventing concurrent access to resources
@@ -29,7 +29,10 @@ services:
     tty: true # Allows terminal interaction
     command: bash # Overrides the default command and runs the bash shell
   webapp:
-    build: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
+    build:
+      context: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
+      args:
+        - NEXT_PUBLIC_ASSISTANT_WEBSOCKET_PORT=8800 # Sets the port the assistant websocket service is running on
     restart: unless-stopped
     volumes:
       - ./webapp/src:/app/src # Mount source code for real-time updates in the container
@@ -43,4 +46,4 @@ services:
       - "8900:3000" # Maps port 8900 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
-    command: bash # Overrides the default command and runs the bash shell
+    command: node server.js # created by next build from standalone output: https://nextjs.org/docs/pages/api-reference/next-config-js/output
