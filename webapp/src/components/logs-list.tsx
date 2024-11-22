@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useJsonWebSocket,
+  WEBSOCKET_RECONNECT_TIMEOUT,
   WebSocketMessage,
   WebSocketMessageType,
 } from "@/hooks/useJsonWebSocket";
@@ -64,8 +65,16 @@ function StatusLog({ log }: { log: WebSocketMessage<Log> }) {
       {log.type === WebSocketMessageType.Connecting &&
         "Connecting to assistant..."}
       {log.type === WebSocketMessageType.Connected && "Connected to assistant!"}
-      {log.type === WebSocketMessageType.Disconnected &&
-        "Disconnected from assistant."}
+      {log.type === WebSocketMessageType.Disconnected && (
+        <>
+          Disconnected from assistant.
+          <br />
+          <span className="font-normal">
+            Waiting {WEBSOCKET_RECONNECT_TIMEOUT / 1000} seconds before
+            attempting to reconnect...
+          </span>
+        </>
+      )}
     </span>
   );
 }

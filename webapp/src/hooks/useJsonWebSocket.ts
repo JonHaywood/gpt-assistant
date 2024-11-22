@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+// wait 10 seconds before attempting to reconnect
+export const WEBSOCKET_RECONNECT_TIMEOUT = 30000;
+
 export enum WebSocketMessageType {
   Connecting = "connecting",
   Connected = "connected",
@@ -20,46 +23,63 @@ export type WebSocketMessage<T> =
  * parsed as JSON of type parameter `T`.
  */
 export function useJsonWebSocket<T>(url: string) {
-  const [messages, setMessages] = useState<WebSocketMessage<T>[]>([
-    { type: WebSocketMessageType.Connecting },
-  ]);
+  const [messages, setMessages] = useState<WebSocketMessage<T>[]>([]);
 
   useEffect(() => {
-    const ws = new WebSocket(url);
+    let ws: WebSocket;
+    let reconnectHandle: NodeJS.Timeout;
 
-    ws.onopen = () => {
+    const connectToWebSocket = () => {
+      ws = new WebSocket(url);
+
       setMessages((prevMessages) => [
         ...prevMessages,
-        { type: WebSocketMessageType.Connected },
+        { type: WebSocketMessageType.Connecting },
       ]);
+
+      ws.onopen = () => {
+        clearTimeout(reconnectHandle);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: WebSocketMessageType.Connected },
+        ]);
+      };
+
+      ws.onmessage = (event) => {
+        const newMessages: WebSocketMessage<T>[] = event.data
+          .split("\n")
+          .filter((line: string) => line.trim() !== "")
+          .map((line: string) => {
+            return {
+              type: WebSocketMessageType.Message,
+              data: JSON.parse(line) as T,
+            };
+          });
+        setMessages((prevMessages) => [...prevMessages, ...newMessages]);
+      };
+
+      ws.onerror = () => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: WebSocketMessageType.Error },
+        ]);
+      };
+
+      ws.onclose = () => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: WebSocketMessageType.Disconnected },
+        ]);
+
+        // wait, then attempt to reconnect
+        reconnectHandle = setTimeout(
+          connectToWebSocket,
+          WEBSOCKET_RECONNECT_TIMEOUT
+        );
+      };
     };
 
-    ws.onmessage = (event) => {
-      const newMessages: WebSocketMessage<T>[] = event.data
-        .split("\n")
-        .filter((line: string) => line.trim() !== "")
-        .map((line: string) => {
-          return {
-            type: WebSocketMessageType.Message,
-            data: JSON.parse(line) as T,
-          };
-        });
-      setMessages((prevMessages) => [...prevMessages, ...newMessages]);
-    };
-
-    ws.onerror = () => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: WebSocketMessageType.Error },
-      ]);
-    };
-
-    ws.onclose = () => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: WebSocketMessageType.Disconnected },
-      ]);
-    };
+    connectToWebSocket();
 
     // Close the WebSocket connection when the component is unmounted
     return () => {
