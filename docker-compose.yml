@@ -3,6 +3,10 @@ networks:
   gpt-assistant:
     driver: bridge
 
+volumes:
+  # shared volume for the assistant and webapp services to read/write log files
+  logs:
+
 services:
   assistant:
     build: ./assistant # Builds the Docker image using the Dockerfile in the assistant directory
@@ -13,6 +17,7 @@ services:
       - ./assistant/package.json:/app/package.json # Mount package.json
       - ./assistant/package-lock.json:/app/package-lock.json # Mount package-lock.json
       - ./config.json:/app/config.json # Mount the config file
+      - logs:/app/logs # Mount the logs volume
       - /etc/asound.conf:/etc/asound.conf # Audio config needed for audio to work
       - /dev/snd:/dev/snd # Gives access to the sound devices on the host machine
       - /dev/shm:/dev/shm # Hardware that needs to be mounted for audio to work
@@ -40,6 +45,7 @@ services:
       - ./webapp/package.json:/app/package.json # Mount package.json
       - ./webapp/package-lock.json:/app/package-lock.json # Mount package-lock.json
       - ./config.json:/app/config.json # Mount the config file
+      - logs:/app/logs # Mount the logs volume
     networks:
       - gpt-assistant
     ports:
