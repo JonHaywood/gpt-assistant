@@ -2,11 +2,11 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  useJsonWebSocket,
-  WEBSOCKET_RECONNECT_TIMEOUT,
-  WebSocketMessage,
-  WebSocketMessageType,
-} from "@/hooks/useJsonWebSocket";
+  EVENTSOURCE_RECONNECT_TIMEOUT,
+  EventSourceMessage,
+  EventSourceMessageType,
+  useJsonEventSource,
+} from "@/hooks/useJsonEventSource";
 import { useEffect, useRef } from "react";
 
 interface Log {
@@ -55,22 +55,23 @@ function formatFilename(filename: string) {
   return <span className="text-amber-200">{filename}</span>;
 }
 
-function StatusLog({ log }: { log: WebSocketMessage<Log> }) {
-  const isError = log.type === WebSocketMessageType.Error;
+function StatusLog({ log }: { log: EventSourceMessage<Log> }) {
+  const isError = log.type === EventSourceMessageType.Error;
   return (
     <span className="font-semibold">
       <span className={isError ? "text-red-400" : "text-green-400"}>{">"}</span>{" "}
-      {log.type === WebSocketMessageType.Error &&
+      {log.type === EventSourceMessageType.Error &&
         "Error connecting to assistant"}
-      {log.type === WebSocketMessageType.Connecting &&
+      {log.type === EventSourceMessageType.Connecting &&
         "Connecting to assistant..."}
-      {log.type === WebSocketMessageType.Connected && "Connected to assistant!"}
-      {log.type === WebSocketMessageType.Disconnected && (
+      {log.type === EventSourceMessageType.Connected &&
+        "Connected to assistant!"}
+      {log.type === EventSourceMessageType.Disconnected && (
         <>
           Disconnected from assistant.
           <br />
           <span className="font-normal">
-            Waiting {WEBSOCKET_RECONNECT_TIMEOUT / 1000} seconds before
+            Waiting {EVENTSOURCE_RECONNECT_TIMEOUT / 1000} seconds before
             attempting to reconnect...
           </span>
         </>
@@ -82,7 +83,7 @@ function StatusLog({ log }: { log: WebSocketMessage<Log> }) {
 export default function LogsList({ url }: { url: string }) {
   const lastDivRef = useRef<HTMLDivElement>(null);
 
-  const logs = useJsonWebSocket<Log>(url);
+  const logs = useJsonEventSource<Log>(url);
 
   // any time logs change, scroll to the bottom
   useEffect(() => {
@@ -93,7 +94,7 @@ export default function LogsList({ url }: { url: string }) {
     <ScrollArea className="h-[calc(100vh-10rem)] text-xs font-mono p-4 bg-gray-800 text-white rounded-md">
       {logs.map((log, index) => (
         <div key={index}>
-          {log.type === WebSocketMessageType.Message ? (
+          {log.type === EventSourceMessageType.Message ? (
             <>
               [{formatDate(log.data.time)}] {formatLogLevel(log.data.level)} (
               {log.data.pid}): {formatFilename(log.data.filename)}:{" "}

@@ -25,8 +25,6 @@ services:
       - /var/run/dbus:/var/run/dbus # allows programs on the same machine to communicate with each other
     networks:
       - gpt-assistant
-    ports:
-      - "8800:8800" # Maps port 8800 on the host to port 8800 in the container for websocket server
     tmpfs:
       - /run # Used to store temporary files that are deleted on reboot
       - /run/lock # Used for preventing concurrent access to resources
@@ -36,8 +34,6 @@ services:
   webapp:
     build:
       context: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
-      args:
-        - NEXT_PUBLIC_ASSISTANT_WEBSOCKET_PORT=8800 # Sets the port the assistant websocket service is running on
     restart: unless-stopped
     volumes:
       - ./webapp/src:/app/src # Mount source code for real-time updates in the container
