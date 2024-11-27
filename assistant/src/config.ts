@@ -55,6 +55,10 @@ export const WAKEWORD_THRESHOLD = parseFloat(
   getConfigVar('WAKEWORD_THRESHOLD', '0.5'),
 );
 export const ASSISTANT_NAME = getConfigVar('ASSISTANT_NAME', 'Bailiwick');
+export const ASSISTANT_GREETING = getConfigVar(
+  'ASSISTANT_GREETING',
+  'Good day! All systems online and ready.',
+);
 export const ASSISTANT_NAME_IS_CUSTOM =
   getConfigVar('ASSISTANT_NAME_IS_CUSTOM', 'true') === 'true';
 export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(

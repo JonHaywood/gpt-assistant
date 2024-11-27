@@ -56,24 +56,27 @@ function formatFilename(filename: string) {
 }
 
 function StatusLog({ log }: { log: EventSourceMessage<Log> }) {
-  const isError = log.type === EventSourceMessageType.Error;
+  let className = "text-green-400";
+  if (log.type === EventSourceMessageType.Error) className = "text-red-400";
+  else if (log.type === EventSourceMessageType.Reconnecting)
+    className = "text-yellow-400";
+
   return (
     <span className="font-semibold">
-      <span className={isError ? "text-red-400" : "text-green-400"}>{">"}</span>{" "}
+      <span className={className}>{">"}</span>{" "}
       {log.type === EventSourceMessageType.Error &&
         "Error connecting to assistant"}
       {log.type === EventSourceMessageType.Connecting &&
         "Connecting to assistant..."}
       {log.type === EventSourceMessageType.Connected &&
         "Connected to assistant!"}
-      {log.type === EventSourceMessageType.Disconnected && (
+      {log.type === EventSourceMessageType.Disconnected &&
+        "Disconnected from assistant."}
+      {log.type === EventSourceMessageType.Reconnecting && (
         <>
           Disconnected from assistant.
           <br />
-          <span className="font-normal">
-            Waiting {EVENTSOURCE_RECONNECT_TIMEOUT / 1000} seconds before
-            attempting to reconnect...
-          </span>
+          <span className="font-normal">Attempting to reconnect...</span>
         </>
       )}
     </span>

@@ -1,9 +1,10 @@
 import { handleAudioData } from './assistantRunner';
+import { ASSISTANT_GREETING } from './config';
 import { listen } from './listener';
 import { parentLogger } from './logger';
 import { setupProcessShutdownHandlers } from './shutdown';
 import { loadEffectsIntoMemory } from './soundEffects';
-import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
+import { speak, startPiperTTSProcess, stopPiperTTSProcess } from './speak';
 import { shutdownStopDetector } from './stopDetector';
 import { shutdownWakewordEngine } from './wakeword';
 
@@ -21,6 +22,9 @@ async function main() {
 
     // start the first TTS process
     startPiperTTSProcess();
+
+    // greet the user
+    await speak(ASSISTANT_GREETING);
 
     // start the listening loop
     await listen(handleAudioData);

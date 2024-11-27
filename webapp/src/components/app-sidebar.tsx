@@ -8,6 +8,7 @@ import {
   Power,
   Settings2,
   ScrollText,
+  Play,
 } from "lucide-react";
 import packageJson from "../../package.json";
 
@@ -21,6 +22,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { toast } from "@/hooks/use-toast";
 
 const data = {
   user: {
@@ -36,13 +38,60 @@ const data = {
   },
   actions: [
     {
+      name: "Start",
+      onClick: async () => {
+        toast({
+          title: "Starting...",
+          description: "Sending start command to the assistant",
+        });
+
+        const response = await fetch("/api/commands/start");
+        const responseText = await response.text();
+
+        toast({
+          title: response.ok ? "Startup completed" : "Startup failed",
+          description: responseText,
+          variant: response.ok ? "default" : "destructive",
+        });
+      },
+      icon: Play,
+    },
+    {
       name: "Shutdown",
-      onClick: () => {},
+      onClick: async () => {
+        toast({
+          title: "Shutting down...",
+          description: "Sending shutdown command to the assistant",
+        });
+
+        const response = await fetch("/api/commands/stop");
+        const responseText = await response.text();
+
+        toast({
+          title: response.ok ? "Shutdown completed" : "Shutdown failed",
+          description: responseText,
+          variant: response.ok ? "default" : "destructive",
+        });
+      },
       icon: Power,
     },
     {
       name: "Restart",
-      onClick: () => {},
+      onClick: async () => {
+        toast({
+          title: "Restarting...",
+          description: "Sending restart command to the assistant",
+        });
+
+        const response = await fetch("/api/commands/restart");
+        const responseText = await response.text();
+
+        toast({
+          title: response.ok ? "Restart completed" : "Restart failed",
+          description: responseText,
+          variant: response.ok ? "default" : "destructive",
+        });
+      },
       icon: RotateCcw,
     },
   ],

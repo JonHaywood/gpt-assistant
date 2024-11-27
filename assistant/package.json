@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "dev": "dotenv -e .env -- ts-node-dev --transpile-only ./src/main.ts",
+    "dev": "ts-node-dev --transpile-only ./src/main.ts",
     "build": "tsup --config build.ts",
-    "start": "dotenv -e .env -- node ./dist/main.js",
+    "start": "node ./dist/main.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "pnpm dlx prettier --config .prettierrc 'src/**/*.ts' --write"

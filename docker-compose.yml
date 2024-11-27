@@ -9,6 +9,7 @@ volumes:
 
 services:
   assistant:
+    container_name: gpt-assistant_assistant
     build: ./assistant # Builds the Docker image using the Dockerfile in the assistant directory
     restart: unless-stopped
     privileged: true # Gives the container permission to access to hardware
@@ -30,8 +31,9 @@ services:
       - /run/lock # Used for preventing concurrent access to resources
     stdin_open: true # Allows you to start an interactive session with the container
     tty: true # Allows terminal interaction
-    command: bash # Overrides the default command and runs the bash shell
+    command: bash -c "node ./dist/main.js" # This allows SIGTERM to be caught and handled properly
   webapp:
+    container_name: gpt-assistant_webapp
     build:
       context: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
     restart: unless-stopped
@@ -42,6 +44,7 @@ services:
       - ./webapp/package-lock.json:/app/package-lock.json # Mount package-lock.json
       - ./config.json:/app/config.json # Mount the config file
       - logs:/app/logs # Mount the logs volume
+      - /var/run/docker.sock:/var/run/docker.sock # Allows the webapp to communicate with the Docker daemon
     networks:
       - gpt-assistant
     ports:

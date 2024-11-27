@@ -1,12 +1,16 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
+
+# Stage for installing system dependencies
+FROM base AS system
+
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
+# to understand why libc6-compat might be needed. Docker CLI allows docker commands to run
+# from within the container
+RUN apk update && apk add --no-cache libc6-compat docker-cli
 
 # Stage for installing dependencies, if package.json and package-lock.json
 # don't change, docker will skip this stage
 FROM base AS deps
-
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
-# to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
@@ -33,7 +37,7 @@ COPY . .
 RUN npm run build
 
 # Stage for running the application
-FROM base AS runner
+FROM system AS runner
 
 WORKDIR /app
 

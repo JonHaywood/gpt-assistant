@@ -6,6 +6,7 @@ export enum EventSourceMessageType {
   Connecting = "connecting",
   Connected = "connected",
   Disconnected = "disconnected",
+  Reconnecting = "reconnecting",
   Message = "message",
   Error = "error",
 }
@@ -14,6 +15,7 @@ export type EventSourceMessage<T> =
   | { type: EventSourceMessageType.Connecting }
   | { type: EventSourceMessageType.Connected }
   | { type: EventSourceMessageType.Disconnected }
+  | { type: EventSourceMessageType.Reconnecting }
   | { type: EventSourceMessageType.Error }
   | { type: EventSourceMessageType.Message; data: T };
 
@@ -49,14 +51,27 @@ export function useJsonEventSource<T>(url: string) {
       };
 
       es.onerror = () => {
+        // EventSource will automatically try to reconnect indefinitely
+        if (es.readyState === EventSource.CONNECTING) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { type: EventSourceMessageType.Reconnecting },
+          ]);
+          return;
+        }
+
+        if (es.readyState === EventSource.CLOSED) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { type: EventSourceMessageType.Disconnected },
+          ]);
+          return;
+        }
+
         setMessages((prevMessages) => [
           ...prevMessages,
           { type: EventSourceMessageType.Error },
         ]);
-        reconnectHandle = setTimeout(
-          connectToEventSource,
-          EVENTSOURCE_RECONNECT_TIMEOUT
-        );
       };
     };
 
