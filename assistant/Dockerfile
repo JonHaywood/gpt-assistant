@@ -29,7 +29,9 @@ COPY . .
 RUN npm run build
 
 # Install Python dependencies
-FROM jsdeps AS shareddeps
+# TODO: fix bundling by tsup so jsdeps isn't needed to run the app
+#FROM base AS pythondeps
+FROM jsdeps AS pythondeps
 
 WORKDIR /app
 
@@ -45,7 +47,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Stage for running the application
-FROM shareddeps AS runner
+FROM pythondeps AS runner
 
 WORKDIR /app
 
