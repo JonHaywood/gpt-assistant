@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-export const EVENTSOURCE_RECONNECT_TIMEOUT = 30000;
-
 export enum EventSourceMessageType {
   Connecting = "connecting",
   Connected = "connected",

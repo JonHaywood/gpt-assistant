@@ -2,7 +2,6 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  EVENTSOURCE_RECONNECT_TIMEOUT,
   EventSourceMessage,
   EventSourceMessageType,
   useJsonEventSource,
