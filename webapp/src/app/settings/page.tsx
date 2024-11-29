@@ -1,8 +1,9 @@
+import { PageContainer } from "@/components/page-container";
+
 export default function Page() {
   return (
-    <div>
-      <h1 className="font-semibold pb-2">General Settings</h1>
+    <PageContainer title="General Settings">
       <p className="text-sm">Coming soon.</p>
-    </div>
+    </PageContainer>
   );
 }

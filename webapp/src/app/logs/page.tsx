@@ -1,10 +1,10 @@
 import LogsList from "@/components/logs-list";
+import { PageContainer } from "@/components/page-container";
 
 export default function Page() {
   return (
-    <div>
-      <h1 className="font-semibold pb-2">Logs</h1>
+    <PageContainer title="Logs">
       <LogsList url="/api/logs" />
-    </div>
+    </PageContainer>
   );
 }

@@ -93,7 +93,7 @@ export default function LogsList({ url }: { url: string }) {
   }, [logs]);
 
   return (
-    <ScrollArea className="h-[calc(100vh-10rem)] text-xs font-mono p-4 bg-gray-800 text-white rounded-md">
+    <ScrollArea className="h-[calc(100vh-10rem)] w-full text-xs font-mono p-4 bg-gray-800 text-white rounded-md">
       {logs.map((log, index) => (
         <div key={index}>
           {log.type === EventSourceMessageType.Message ? (

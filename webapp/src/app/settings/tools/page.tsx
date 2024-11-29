@@ -1,8 +1,9 @@
+import { PageContainer } from "@/components/page-container";
+
 export default function Tools() {
   return (
-    <div>
-      <h1 className="font-semibold pb-2">Tools</h1>
+    <PageContainer title="Tools">
       <p className="text-sm">Coming soon.</p>
-    </div>
+    </PageContainer>
   );
 }
