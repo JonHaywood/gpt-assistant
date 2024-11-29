@@ -64,16 +64,16 @@ function StatusLog({ log }: { log: EventSourceMessage<Log> }) {
     <span className="font-semibold">
       <span className={className}>{">"}</span>{" "}
       {log.type === EventSourceMessageType.Error &&
-        "Error connecting to assistant"}
+        "Error connecting to assistant logs"}
       {log.type === EventSourceMessageType.Connecting &&
-        "Connecting to assistant..."}
+        "Connecting to assistant logs..."}
       {log.type === EventSourceMessageType.Connected &&
-        "Connected to assistant!"}
+        "Connected to assistant logs!"}
       {log.type === EventSourceMessageType.Disconnected &&
-        "Disconnected from assistant."}
+        "Connection to assistant logs was closed."}
       {log.type === EventSourceMessageType.Reconnecting && (
         <>
-          Disconnected from assistant.
+          Disconnected from assistant logs.
           <br />
           <span className="font-normal">Attempting to reconnect...</span>
         </>
