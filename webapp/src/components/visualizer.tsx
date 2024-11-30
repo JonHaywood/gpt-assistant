@@ -12,6 +12,11 @@ interface Renderer {
   cleanup: () => void;
 }
 
+/**
+ * See the following for more information:
+ * video: https://www.youtube.com/watch?v=qDIF2z_VtHs
+ * article:https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
+ */
 function createRenderer(container: HTMLDivElement): Renderer {
   const width = container.clientWidth;
   const height = container.clientHeight;
