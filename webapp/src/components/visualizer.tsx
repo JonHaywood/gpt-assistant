@@ -171,11 +171,12 @@ function createRenderer(container: HTMLDivElement): Renderer {
       }
     `,
     fragmentShader: `
-      uniform float u_red;
-      uniform float u_blue;
-      uniform float u_green;
       void main() {
-        gl_FragColor = vec4(vec3(u_red, u_green, u_blue), 1. );
+        float gradientFactor = gl_FragCoord.y / ${height}.0;
+        gradientFactor = clamp(gradientFactor, 0.0, 1.0);
+
+        vec3 color = mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), gradientFactor);
+        gl_FragColor = vec4(color, 1.0);
       }
     `,
   });
