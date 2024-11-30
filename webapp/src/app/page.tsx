@@ -3,7 +3,7 @@ import { Visualizer } from "@/components/visualizer";
 
 export default function Page() {
   return (
-    <PageContainer title="Home - Dashboard">
+    <PageContainer>
       <Visualizer />
     </PageContainer>
   );
