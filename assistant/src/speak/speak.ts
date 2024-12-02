@@ -3,6 +3,11 @@ import { AbortErrorMessage } from '../utils/abort';
 import { parentLogger } from '../logger';
 import { createChildAbortController } from '../shutdown';
 import { getCurrentPiperTTSProcess } from './textToSpeech';
+import {
+  startSendingVisualizationData,
+  stopSendingVisualizationData,
+  visualizationProcessor,
+} from './visualizationProcessor';
 
 const logger = parentLogger.child({ filename: 'speak' });
 
@@ -34,6 +39,7 @@ export function speak(text: string): Promise<void> {
     aplayProcess.on('error', (error) => {
       if (error.message === AbortErrorMessage) return;
       logger.error(`Error running aplay: ${error.message}`);
+      stopSendingVisualizationData();
       reject(error);
     });
 
@@ -42,6 +48,7 @@ export function speak(text: string): Promise<void> {
       logger.debug(`aplay process finished with exit code ${code}`);
       logger.info('🔊 Speaking finished.');
       speakerAbortController = null;
+      stopSendingVisualizationData();
       resolve();
     });
 
@@ -49,12 +56,18 @@ export function speak(text: string): Promise<void> {
     const piperProcess = getCurrentPiperTTSProcess();
 
     // Pipe Piper's stdout (raw audio) into aplay's stdin
-    piperProcess.stdout.pipe(aplayProcess.stdin).on('error', (error) => {
-      // Ignore EPIPE errors, which occur when aplay is killed before finishing
-      if ((error as NodeJS.ErrnoException).code === 'EPIPE') return;
-      logger.error(`Error piping audio from Piper TTS to aplay: ${error}`);
-      reject(error);
-    });
+    piperProcess.stdout
+      .pipe(visualizationProcessor) // pipe through visualization processor
+      .pipe(aplayProcess.stdin)
+      .on('error', (error) => {
+        // Ignore EPIPE errors, which occur when aplay is killed before finishing
+        if ((error as NodeJS.ErrnoException).code === 'EPIPE') return;
+        logger.error(`Error piping audio from Piper TTS to aplay: ${error}`);
+        reject(error);
+      });
+
+    // Start sending visualization data loop so it's ready once the audio starts
+    startSendingVisualizationData();
 
     // Send the input text to Piper's stdin
     piperProcess.stdin.write(text);

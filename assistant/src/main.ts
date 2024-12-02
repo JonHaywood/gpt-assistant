@@ -5,6 +5,7 @@ import { parentLogger } from './logger';
 import { setupProcessShutdownHandlers } from './shutdown';
 import { loadEffectsIntoMemory } from './soundEffects';
 import { speak, startPiperTTSProcess, stopPiperTTSProcess } from './speak';
+import { startSseServer, stopSseServer } from './sseServer/launch';
 import { shutdownStopDetector } from './stopDetector';
 import { shutdownWakewordEngine } from './wakeword';
 
@@ -16,6 +17,9 @@ async function main() {
 
     // gracefully handle app/process shutdown
     setupProcessShutdownHandlers();
+
+    // start the SSE server for log visualizations
+    await startSseServer();
 
     // load all sound effects into memory
     await loadEffectsIntoMemory();
@@ -31,6 +35,9 @@ async function main() {
 
     // stop the TTS process
     stopPiperTTSProcess();
+
+    // stop the SSE server
+    await stopSseServer();
 
     // shutdown all other services
     shutdownStopDetector();

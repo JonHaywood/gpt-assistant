@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/main.ts'],
+  entry: ['src/main.ts', 'src/sseServer/server.ts'],
   splitting: false,
   sourcemap: true,
   clean: true,
