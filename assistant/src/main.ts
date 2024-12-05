@@ -1,10 +1,13 @@
 import { handleAudioData } from './assistantRunner';
-import { ASSISTANT_GREETING } from './config';
 import { listen } from './listener';
 import { parentLogger } from './logger';
 import { setupProcessShutdownHandlers } from './shutdown';
-import { loadEffectsIntoMemory } from './soundEffects';
-import { speak, startPiperTTSProcess, stopPiperTTSProcess } from './speak';
+import {
+  FileSoundEffect,
+  loadEffectsIntoMemory,
+  playSoundEffectFromFile,
+} from './soundEffects';
+import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
 import { startSseServer, stopSseServer } from './sseServer/launch';
 import { shutdownStopDetector } from './stopDetector';
 import { shutdownWakewordEngine } from './wakeword';
@@ -14,6 +17,9 @@ const logger = parentLogger.child({ filename: 'main' });
 async function main() {
   try {
     logger.info('🤖 GPT-Assistant starting up!');
+
+    // play startup sound from file (not loaded into memory)
+    playSoundEffectFromFile(FileSoundEffect.STARTUP);
 
     // gracefully handle app/process shutdown
     setupProcessShutdownHandlers();
@@ -26,9 +32,6 @@ async function main() {
 
     // start the first TTS process
     startPiperTTSProcess();
-
-    // greet the user
-    await speak(ASSISTANT_GREETING);
 
     // start the listening loop
     await listen(handleAudioData);

@@ -4,9 +4,9 @@ import { parentLogger } from '../logger';
 import { createChildAbortController } from '../shutdown';
 import { getCurrentPiperTTSProcess } from './textToSpeech';
 import {
+  createVisualizationProcessor,
   startSendingVisualizationData,
   stopSendingVisualizationData,
-  visualizationProcessor,
 } from './visualizationProcessor';
 
 const logger = parentLogger.child({ filename: 'speak' });
@@ -29,9 +29,14 @@ export function speak(text: string): Promise<void> {
 
   return new Promise((resolve, reject) => {
     // aplay command with appropriate settings for playing raw audio
+    // prettier-ignore
     const aplayProcess = spawn(
       'aplay',
-      ['-r', '22050', '-f', 'S16_LE', '-t', 'raw', '-'],
+      [
+        '-r', '22050',  // Sets the sample rate to 22050 Hz (samples per second)
+        '-f', 'S16_LE', // Specifies the audio format as 16-bit signed little-endian
+        '-t', 'raw',    // Indicates that the input audio data is raw (no headers, plain PCM data)
+        '-'],           // Specifies audio data comes from stdin, allowing piping of audio data directly into the command
       { signal },
     );
 
@@ -57,7 +62,7 @@ export function speak(text: string): Promise<void> {
 
     // Pipe Piper's stdout (raw audio) into aplay's stdin
     piperProcess.stdout
-      .pipe(visualizationProcessor) // pipe through visualization processor
+      .pipe(createVisualizationProcessor()) // pipe through visualization processor
       .pipe(aplayProcess.stdin)
       .on('error', (error) => {
         // Ignore EPIPE errors, which occur when aplay is killed before finishing

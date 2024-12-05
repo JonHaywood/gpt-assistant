@@ -1,6 +1,9 @@
-import { Transform } from 'stream';
 import Meyda from 'meyda';
+import { Transform } from 'stream';
+import { parentLogger } from '../logger';
 import { sendMessageToSseServer } from '../sseServer/launch';
+
+const logger = parentLogger.child({ module: 'visualizationProcessor' });
 
 // PCM to Float32 conversion
 function pcmToFloat32(buffer: Buffer): Float32Array {
@@ -10,6 +13,22 @@ function pcmToFloat32(buffer: Buffer): Float32Array {
     buffer.byteLength / Int16Array.BYTES_PER_ELEMENT,
   );
   return Float32Array.from(int16).map((sample) => sample / 32768); // normalize to [-1, 1]
+}
+
+// Adjust buffer to the nearest power of 2 for Meyda
+function adjustBufferToPowerOfTwo(buffer: Float32Array): Float32Array {
+  const length = buffer.length;
+  const powerOfTwo = Math.pow(2, Math.floor(Math.log2(length)));
+
+  // Trim if the buffer is larger than the nearest power of 2
+  if (length > powerOfTwo) {
+    return buffer.slice(0, powerOfTwo);
+  }
+
+  // Pad with zeros if the buffer is smaller
+  const adjustedBuffer = new Float32Array(powerOfTwo);
+  adjustedBuffer.set(buffer); // Copy existing data
+  return adjustedBuffer;
 }
 
 // downsample to 16 frequency bands
@@ -63,11 +82,14 @@ export function stopSendingVisualizationData(): void {
   frequencyBuffer = [];
 }
 
-// transform stream to process audio data for visualization
-export const visualizationProcessor = new Transform({
-  transform(chunk, _encoding, callback) {
+/**
+ * Extracts frequency data from the audio chunk and adds it to the aggregation buffer.
+ */
+function extractFrequencyData(chunk: Buffer) {
+  try {
     // convert PCM to Float32 and calculate frequency data
-    const floatData = pcmToFloat32(chunk);
+    let floatData = pcmToFloat32(chunk);
+    floatData = adjustBufferToPowerOfTwo(floatData);
 
     // Calculate amplitude spectrum using Meyda
     const amplitudeSpectrum = Meyda.extract(
@@ -78,8 +100,23 @@ export const visualizationProcessor = new Transform({
 
     // add to aggregation buffer
     frequencyBuffer.push(frequencies);
+  } catch (e) {
+    logger.error(e, 'Error extracting frequency data:');
+  }
+}
 
-    this.push(chunk); // pass the audio chunk unchanged to the next process
-    callback();
-  },
-});
+/**
+ * Transform stream to process audio data for visualization.
+ * Note: creates a new instance for each audio chunk because transforms are stateful.
+ */
+export function createVisualizationProcessor() {
+  return new Transform({
+    transform(chunk, _encoding, callback) {
+      // extract frequency data from the audio chunk
+      extractFrequencyData(chunk);
+
+      this.push(chunk); // pass the audio chunk unchanged to the next process
+      callback();
+    },
+  });
+}

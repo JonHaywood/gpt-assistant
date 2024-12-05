@@ -14,8 +14,11 @@ interface Renderer {
 
 /**
  * See the following for more information:
- * video: https://www.youtube.com/watch?v=qDIF2z_VtHs
- * article:https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
+ * article: https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
+ * videos:
+ *  - audio visualizer: https://www.youtube.com/watch?v=qDIF2z_VtHs
+ *  - blob w/perlin noise: https://www.youtube.com/watch?v=KEMZR3unWTE
+ * repo: https://github.com/WaelYasmina/audiovisualizer
  */
 function createRenderer(container: HTMLDivElement): Renderer {
   const width = container.clientWidth;

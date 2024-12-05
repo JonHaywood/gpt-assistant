@@ -28,6 +28,8 @@ services:
       - /var/run/dbus:/var/run/dbus # allows programs on the same machine to communicate with each other
     networks:
       - gpt-assistant
+    ports:
+      - "8900:8900" # Maps port 8900 on the host to port 8900 in the container
     tmpfs:
       - /run # Used to store temporary files that are deleted on reboot
       - /run/lock # Used for preventing concurrent access to resources
@@ -50,8 +52,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # Allows the webapp to communicate with the Docker daemon
     networks:
       - gpt-assistant
-    ports:
-      - "8900:3000" # Maps port 8900 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
     command: ${WEBAPP_COMMAND:-node server.js} #server.js is created by next build from standalone output: https://nextjs.org/docs/pages/api-reference/next-config-js/output

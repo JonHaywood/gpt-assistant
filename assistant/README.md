@@ -82,3 +82,7 @@ ts-easy/
 ### License 📄
 
 This project is licensed under the MIT License.
+
+## Attributions
+
+lovelyboot1.ogg by pizzaiolo -- https://freesound.org/s/320664/ -- License: Creative Commons 0

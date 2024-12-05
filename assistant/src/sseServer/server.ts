@@ -62,6 +62,17 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
 
   logger.info(`🔌: 🤝 Client connected from ${clientAddress}:${clientPort}`);
 
+  // check if the request is coming from localhost
+  const origin = req.headers.origin || '';
+  let isLocalhost = false;
+  try {
+    const url = new URL(origin);
+    isLocalhost = url.hostname === 'localhost';
+  } catch {}
+
+  // allow requests from localhost (for frontend dev)
+  if (isLocalhost) res.setHeader('Access-Control-Allow-Origin', origin);
+
   // set headers for Server-Sent Events
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
