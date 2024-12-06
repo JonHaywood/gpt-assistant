@@ -7,39 +7,51 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-interface Renderer {
+interface Visualizer3D {
   domElement: HTMLCanvasElement;
   cleanup: () => void;
 }
 
-/**
- * See the following for more information:
- * article: https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
- * videos:
- *  - audio visualizer: https://www.youtube.com/watch?v=qDIF2z_VtHs
- *  - blob w/perlin noise: https://www.youtube.com/watch?v=KEMZR3unWTE
- * repo: https://github.com/WaelYasmina/audiovisualizer
- */
-function createRenderer(container: HTMLDivElement): Renderer {
-  const width = container.clientWidth;
-  const height = container.clientHeight;
+interface MouseCoords {
+  x: number;
+  y: number;
+}
 
+function createRenderer(
+  container: HTMLDivElement,
+  width: number,
+  height: number
+) {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
+  // manually append the renderer to the container
+  container.appendChild(renderer.domElement);
+
+  return renderer;
+}
+
+function createSceneAndCamera(width: number, height: number) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  camera.position.set(0, -2, 13);
+  camera.lookAt(0, 0, 0);
+  return { scene, camera };
+}
 
+function createRenderingEffects(
+  renderer: THREE.WebGLRenderer,
+  scene: THREE.Scene,
+  camera: THREE.PerspectiveCamera,
+  width: number,
+  height: number
+) {
   const params = {
-    red: 1.0,
-    green: 1.0,
-    blue: 1.0,
     threshold: 0.5,
     strength: 0.4,
     radius: 0.8,
   };
-
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const renderScene = new RenderPass(scene, camera);
 
@@ -57,18 +69,14 @@ function createRenderer(container: HTMLDivElement): Renderer {
   const outputPass = new OutputPass();
   bloomComposer.addPass(outputPass);
 
-  camera.position.set(0, -2, 13);
-  camera.lookAt(0, 0, 0);
+  return bloomComposer;
+}
 
-  const uniforms = {
-    u_time: { type: "f", value: 0.0 },
-    u_frequency: { type: "f", value: 0.0 },
-    u_red: { value: params.red },
-    u_green: { value: params.green },
-    u_blue: { value: params.blue },
-    u_speaking: { type: "b", value: false },
-  };
-
+function createWireframeMesh(
+  uniforms: Record<string, THREE.IUniform>,
+  scene: THREE.Scene,
+  height: number
+) {
   const mat = new THREE.ShaderMaterial({
     wireframe: true,
     uniforms,
@@ -187,44 +195,72 @@ function createRenderer(container: HTMLDivElement): Renderer {
 
   const geo = new THREE.IcosahedronGeometry(4, 30);
   const mesh = new THREE.Mesh(geo, mat);
-  scene.add(mesh);
   mesh.material.wireframe = true;
 
-  let mouseX = 0;
-  let mouseY = 0;
+  scene.add(mesh);
+
+  return mesh;
+}
+
+function setupMouseInteraction(
+  mouseCoords: MouseCoords,
+  width: number,
+  height: number
+) {
   const mousemoveListener = (e: MouseEvent) => {
     const windowHalfX = width / 2;
     const windowHalfY = height / 2;
-    mouseX = (e.clientX - windowHalfX) / 100;
-    mouseY = (e.clientY - windowHalfY) / 100;
+    mouseCoords.x = (e.clientX - windowHalfX) / 100;
+    mouseCoords.y = (e.clientY - windowHalfY) / 100;
   };
 
   document.addEventListener("mousemove", mousemoveListener);
 
-  const listener = new THREE.AudioListener();
-  camera.add(listener);
+  return mousemoveListener;
+}
 
+function setupServerEvents(uniforms: Record<string, THREE.IUniform>) {
   const source = new EventSource("http://10.0.33.206:8900");
 
   source.addEventListener("speaking", (event) => {
-    console.log("SSE message received:", event.data);
     uniforms.u_speaking.value = event.data === "true";
   });
 
+  return () => source.close();
+}
+
+function setupAnimationLoop(
+  camera: THREE.PerspectiveCamera,
+  scene: THREE.Scene,
+  uniforms: Record<string, THREE.IUniform>,
+  bloomComposer: EffectComposer,
+  mouseCoords: MouseCoords
+) {
   const clock = new THREE.Clock();
 
-  let animationHandle: number;
+  const animationHandle = { instance: 0 };
 
   const animate = () => {
-    camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY - camera.position.y) * 0.5;
+    camera.position.x += (mouseCoords.x - camera.position.x) * 0.05;
+    camera.position.y += (-mouseCoords.y - camera.position.y) * 0.5;
     camera.lookAt(scene.position);
     uniforms.u_time.value = clock.getElapsedTime();
     bloomComposer.render();
-    animationHandle = requestAnimationFrame(animate);
+    animationHandle.instance = requestAnimationFrame(animate);
   };
+
   animate();
 
+  return animationHandle;
+}
+
+function setupResizeHandling(
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  bloomComposer: EffectComposer,
+  width: number,
+  height: number
+) {
   const resizeListener = () => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -234,13 +270,82 @@ function createRenderer(container: HTMLDivElement): Renderer {
 
   window.addEventListener("resize", resizeListener);
 
+  return resizeListener;
+}
+
+/**
+ * Logic for creating a 3D audio visualizer using Three.js.
+ *
+ * @see article: https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
+ * @see videos:
+ *   - audio visualizer: https://www.youtube.com/watch?v=qDIF2z_VtHs
+ *   - blob w/perlin noise: https://www.youtube.com/watch?v=KEMZR3unWTE
+ *   - repo: https://github.com/WaelYasmina/audiovisualizer
+ */
+function createVisualizer(container: HTMLDivElement): Visualizer3D {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  const mouseCoords: MouseCoords = { x: 0, y: 0 };
+
+  // create the 3D renderer
+  const renderer = createRenderer(container, width, height);
+
+  // create scene and camera
+  const { scene, camera } = createSceneAndCamera(width, height);
+
+  // create rendering effects
+  const bloomComposer = createRenderingEffects(
+    renderer,
+    scene,
+    camera,
+    width,
+    height
+  );
+
+  // define the uniforms for the shader material (and variables related to the shader)
+  const uniforms = {
+    u_time: { type: "f", value: 0.0 },
+    u_frequency: { type: "f", value: 0.0 },
+    u_red: { value: 1.0 },
+    u_green: { value: 1.0 },
+    u_blue: { value: 1.0 },
+    u_speaking: { type: "b", value: false },
+  };
+
+  // create the wireframe mesh
+  createWireframeMesh(uniforms, scene, height);
+
+  // setup interactivity
+  const mousemoveListener = setupMouseInteraction(mouseCoords, width, height);
+
+  // setup events being pushed from the server
+  const closeEventSource = setupServerEvents(uniforms);
+
+  // start the animation loop
+  const animationHandle = setupAnimationLoop(
+    camera,
+    scene,
+    uniforms,
+    bloomComposer,
+    mouseCoords
+  );
+
+  // handle when the window is resized
+  const resizeListener = setupResizeHandling(
+    camera,
+    renderer,
+    bloomComposer,
+    width,
+    height
+  );
+
   return {
     domElement: renderer.domElement,
     cleanup: () => {
       window.removeEventListener("resize", resizeListener);
       document.removeEventListener("mousemove", mousemoveListener);
-      cancelAnimationFrame(animationHandle);
-      source.close();
+      cancelAnimationFrame(animationHandle.instance);
+      closeEventSource();
     },
   };
 }
@@ -250,18 +355,18 @@ export function Visualizer() {
 
   useEffect(() => {
     const currentContainer = containerRef.current;
-    let renderer: Renderer;
+    let visualizer: Visualizer3D;
 
     if (currentContainer) {
-      renderer = createRenderer(currentContainer);
-      currentContainer.appendChild(renderer.domElement);
+      visualizer = createVisualizer(currentContainer);
+      currentContainer.appendChild(visualizer.domElement);
     }
 
     // cleanup
     return () => {
       if (currentContainer) {
-        currentContainer.removeChild(renderer.domElement);
-        renderer.cleanup();
+        currentContainer.removeChild(visualizer.domElement);
+        visualizer.cleanup();
       }
     };
   }, []); // The effect runs only once when the component mounts
