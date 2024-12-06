@@ -6,13 +6,12 @@ import { sendMessageToSseServer } from '../sseServer/launch';
 const logger = parentLogger.child({ module: 'visualizationProcessor' });
 
 // PCM to Float32 conversion
-function pcmToFloat32(buffer: Buffer): Float32Array {
-  const int16 = new Int16Array(
-    buffer.buffer,
-    buffer.byteOffset,
-    buffer.byteLength / Int16Array.BYTES_PER_ELEMENT,
-  );
-  return Float32Array.from(int16).map((sample) => sample / 32768); // normalize to [-1, 1]
+function pcmToFloat32(input: Buffer): Float32Array {
+  const output = new Float32Array(input.length);
+  for (let i = 0; i < input.length; i++) {
+    output[i] = input[i] / 32768; // Normalize to [-1.0, 1.0]
+  }
+  return output;
 }
 
 // Adjust buffer to the nearest power of 2 for Meyda
@@ -31,7 +30,7 @@ function adjustBufferToPowerOfTwo(buffer: Float32Array): Float32Array {
   return adjustedBuffer;
 }
 
-// downsample to 16 frequency bands
+// downsample to specified frequency bands
 function downsampleFrequencies(data: number[], bands: number): number[] {
   const factor = Math.floor(data.length / bands);
   const reduced = new Array(bands).fill(0);
@@ -59,14 +58,14 @@ export function startSendingVisualizationData(): void {
 
     // average the frequency data so that the visualization is smoother
     // and less janky b/c different chunks may vary significantly
-    const averagedFrequencies = frequencyBuffer
-      .reduce((acc, freqs) => {
-        return acc.map((val, i) => val + freqs[i]);
-      }, new Array(16).fill(0))
-      .map((val) => val / frequencyBuffer.length);
+    // const averagedFrequencies = frequencyBuffer
+    //   .reduce((acc, freqs) => {
+    //     return acc.map((val, i) => val + freqs[i]);
+    //   }, new Array(16).fill(0))
+    //   .map((val) => val / frequencyBuffer.length);
 
     // send to the SSE server
-    sendMessageToSseServer(JSON.stringify(averagedFrequencies));
+    sendMessageToSseServer(JSON.stringify(frequencyBuffer));
 
     frequencyBuffer = []; // clear the buffer
   }, UPDATE_INTERVAL_MS);
@@ -96,10 +95,10 @@ function extractFrequencyData(chunk: Buffer) {
       'amplitudeSpectrum',
       floatData,
     ) as number[];
-    const frequencies = downsampleFrequencies(amplitudeSpectrum, 16); // Downsample to 16 bands
+    //const frequencies = downsampleFrequencies(amplitudeSpectrum, 32); // Downsample to 32 bands
 
     // add to aggregation buffer
-    frequencyBuffer.push(frequencies);
+    frequencyBuffer.push(amplitudeSpectrum);
   } catch (e) {
     logger.error(e, 'Error extracting frequency data:');
   }

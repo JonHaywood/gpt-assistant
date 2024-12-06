@@ -12,6 +12,40 @@ interface Renderer {
   cleanup: () => void;
 }
 
+interface CustomAudioAnalyser extends THREE.AudioAnalyser {
+  updateFrequencyData: (data: number[]) => void;
+}
+
+function createCustomAudioAnalyser(
+  audio: THREE.Audio,
+  frequencyBands: number = 32
+): CustomAudioAnalyser {
+  const analyser = new THREE.AudioAnalyser(
+    audio,
+    frequencyBands
+  ) as CustomAudioAnalyser;
+
+  const frequencyBuffer = new Uint8Array(frequencyBands);
+
+  analyser.getFrequencyData = () => frequencyBuffer;
+
+  analyser.getAverageFrequency = () => {
+    return (
+      frequencyBuffer.reduce((acc, val) => acc + val, 0) /
+      frequencyBuffer.length
+    );
+  };
+
+  analyser.updateFrequencyData = (data: number[]) => {
+    for (let i = 0; i < data.length; i++) {
+      frequencyBuffer[i] = Math.min(255, Math.max(0, data[i] * 255)); // Normalize to 0-255
+    }
+    console.log("updated freq buffer:", frequencyBuffer);
+  };
+
+  return analyser;
+}
+
 /**
  * See the following for more information:
  * article: https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
@@ -49,9 +83,6 @@ function createRenderer(container: HTMLDivElement): Renderer {
     params.radius,
     params.threshold
   );
-  bloomPass.threshold = params.threshold;
-  bloomPass.strength = params.strength;
-  bloomPass.radius = params.radius;
 
   const bloomComposer = new EffectComposer(renderer);
   bloomComposer.addPass(renderScene);
@@ -164,10 +195,13 @@ function createRenderer(container: HTMLDivElement): Renderer {
         }
 
         uniform float u_time;
+        uniform float u_frequency;
 
         void main() {
-            float noise = 5. * pnoise(position + u_time, vec3(10.));
-            float displacement = noise / 10.;
+            //float noise = 5. * pnoise(position + u_time, vec3(10.));
+            float noise = 2. * pnoise(position + u_time, vec3(10.));
+            //float displacement = noise / 10.;
+            float displacement = (u_frequency / 30.) * (noise / 10.);
             vec3 newPosition = position + normal * displacement;
 
             gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -178,7 +212,9 @@ function createRenderer(container: HTMLDivElement): Renderer {
             float gradientFactor = gl_FragCoord.y / ${height}.0;
             gradientFactor = clamp(gradientFactor, 0.0, 1.0);
 
-            vec3 color = mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), gradientFactor);
+            vec3 blue = vec3(0.0, 0.0, 1.0);
+            vec3 red = vec3(0.5, 0.0, 0.5);
+            vec3 color = mix(red, blue, gradientFactor);
             gl_FragColor = vec4(color, 1.0);
         }
     `,
@@ -200,6 +236,28 @@ function createRenderer(container: HTMLDivElement): Renderer {
 
   document.addEventListener("mousemove", mousemoveListener);
 
+  const listener = new THREE.AudioListener();
+  camera.add(listener);
+
+  const sound = new THREE.Audio(listener);
+
+  // const audioLoader = new THREE.AudioLoader();
+  // audioLoader.load("/beats.mp3", (buffer) => {
+  //   sound.setBuffer(buffer);
+  //   sound.setVolume(0.5);
+  //   window.addEventListener("click", () => sound.play());
+  // });
+
+  const analyser = createCustomAudioAnalyser(sound, 32);
+
+  const source = new EventSource("http://10.0.33.206:8900");
+
+  source.onmessage = (event) => {
+    console.log("SSE message received:", event.data);
+    const data: number[] = JSON.parse(event.data);
+    analyser.updateFrequencyData(data);
+  };
+
   const clock = new THREE.Clock();
 
   let animationHandle: number;
@@ -209,7 +267,8 @@ function createRenderer(container: HTMLDivElement): Renderer {
     camera.position.y += (-mouseY - camera.position.y) * 0.5;
     camera.lookAt(scene.position);
     uniforms.u_time.value = clock.getElapsedTime();
-    //uniforms.u_frequency.value = analyser.getAverageFrequency();
+    //console.log("avg freq:", analyser.getAverageFrequency());
+    uniforms.u_frequency.value = analyser.getAverageFrequency();
     bloomComposer.render();
     animationHandle = requestAnimationFrame(animate);
   };
@@ -230,6 +289,7 @@ function createRenderer(container: HTMLDivElement): Renderer {
       window.removeEventListener("resize", resizeListener);
       document.removeEventListener("mousemove", mousemoveListener);
       cancelAnimationFrame(animationHandle);
+      source.close();
     },
   };
 }
