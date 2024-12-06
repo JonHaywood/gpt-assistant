@@ -1,13 +1,10 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-interface Visualizer3D {
+export interface Visualizer3D {
   domElement: HTMLCanvasElement;
   cleanup: () => void;
 }
@@ -282,7 +279,9 @@ function setupResizeHandling(
  *   - blob w/perlin noise: https://www.youtube.com/watch?v=KEMZR3unWTE
  *   - repo: https://github.com/WaelYasmina/audiovisualizer
  */
-function createVisualizer(container: HTMLDivElement): Visualizer3D {
+export function createVisualizationRenderer(
+  container: HTMLDivElement
+): Visualizer3D {
   const width = container.clientWidth;
   const height = container.clientHeight;
   const mouseCoords: MouseCoords = { x: 0, y: 0 };
@@ -348,36 +347,4 @@ function createVisualizer(container: HTMLDivElement): Visualizer3D {
       closeEventSource();
     },
   };
-}
-
-export function Visualizer() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const currentContainer = containerRef.current;
-    let visualizer: Visualizer3D;
-
-    if (currentContainer) {
-      visualizer = createVisualizer(currentContainer);
-      currentContainer.appendChild(visualizer.domElement);
-    }
-
-    // cleanup
-    return () => {
-      if (currentContainer) {
-        currentContainer.removeChild(visualizer.domElement);
-        visualizer.cleanup();
-      }
-    };
-  }, []); // The effect runs only once when the component mounts
-
-  return (
-    <div className="w-full flex flex-1 flex-col p-4 bg-black rounded-lg relative">
-      <div className="absolute top-0 left-0 right-0 z-10 p-4 font-mono text-white text-xs">
-        <div className="font-semibold">Visualizer</div>
-        <div>Status: ⌛ waiting for speech...</div>
-      </div>
-      <div ref={containerRef} className="w-full flex flex-1" />
-    </div>
-  );
 }
