@@ -171,11 +171,11 @@ function createWireframeMesh(
         }
 
         uniform float u_time;
-        uniform bool u_speaking;
+        uniform float u_speakingIntensity;
 
         void main() {
             float noise = 5. * pnoise(position + u_time, vec3(10.));
-            float displacement = u_speaking ? (noise / 10.) : 0.0;
+            float displacement = u_speakingIntensity * (noise / 10.);
             vec3 newPosition = position + normal * displacement;
 
             gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -220,15 +220,11 @@ function setupMouseInteraction(
   return mousemoveListener;
 }
 
-function setupServerEvents(
-  uniforms: Record<string, THREE.IUniform>,
-  onSpeaking: SpeakingHandler
-) {
+function setupServerEvents(onSpeaking: SpeakingHandler) {
   const source = new EventSource("http://10.0.33.206:8900");
 
   source.addEventListener("speaking", (event) => {
     const speaking = event.data === "true";
-    uniforms.u_speaking.value = speaking;
     onSpeaking(speaking);
   });
 
@@ -240,7 +236,8 @@ function setupAnimationLoop(
   scene: THREE.Scene,
   uniforms: Record<string, THREE.IUniform>,
   bloomComposer: EffectComposer,
-  mouseCoords: MouseCoords
+  mouseCoords: MouseCoords,
+  targetSpeakingIntensity: { value: number }
 ) {
   const clock = new THREE.Clock();
 
@@ -250,7 +247,14 @@ function setupAnimationLoop(
     camera.position.x += (mouseCoords.x - camera.position.x) * 0.05;
     camera.position.y += (-mouseCoords.y - camera.position.y) * 0.5;
     camera.lookAt(scene.position);
+
     uniforms.u_time.value = clock.getElapsedTime();
+
+    //  linear interpolation for smooth transition
+    uniforms.u_speakingIntensity.value +=
+      (targetSpeakingIntensity.value - uniforms.u_speakingIntensity.value) *
+      0.1;
+
     bloomComposer.render();
     animationHandle.instance = requestAnimationFrame(animate);
   };
@@ -295,6 +299,7 @@ export function createVisualizationRenderer(
   const width = container.clientWidth;
   const height = container.clientHeight;
   const mouseCoords: MouseCoords = { x: 0, y: 0 };
+  const targetSpeakingIntensity = { value: 0.0 };
 
   // create the 3D renderer
   const renderer = createRenderer(container, width, height);
@@ -318,7 +323,7 @@ export function createVisualizationRenderer(
     u_red: { value: 1.0 },
     u_green: { value: 1.0 },
     u_blue: { value: 1.0 },
-    u_speaking: { type: "b", value: false },
+    u_speakingIntensity: { type: "f", value: 0.0 }, // use number instead of boolean for smoother transition on start/stop speaking
   };
 
   // create the wireframe mesh
@@ -328,7 +333,10 @@ export function createVisualizationRenderer(
   const mousemoveListener = setupMouseInteraction(mouseCoords, width, height);
 
   // setup events being pushed from the server
-  const closeEventSource = setupServerEvents(uniforms, onSpeaking);
+  const closeEventSource = setupServerEvents((speaking) => {
+    targetSpeakingIntensity.value = speaking ? 1.0 : 0.0;
+    onSpeaking(speaking);
+  });
 
   // start the animation loop
   const animationHandle = setupAnimationLoop(
@@ -336,7 +344,8 @@ export function createVisualizationRenderer(
     scene,
     uniforms,
     bloomComposer,
-    mouseCoords
+    mouseCoords,
+    targetSpeakingIntensity
   );
 
   // handle when the window is resized
