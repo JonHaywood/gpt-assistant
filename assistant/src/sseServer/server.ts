@@ -1,12 +1,13 @@
 import http, { ServerResponse } from 'http';
 import { parentLogger } from '../logger';
+import { SseMessage, serializeSseMessage } from './message';
 
 const SSE_PORT = 8900;
 
 /**
  * NOTE: this file is executed in a separate process than the main application,
  * so none of the context from the main application is available here. This file is
- * the entry point for this child process. See launch.ts for where it is spawned.
+ * the entry point for this child process. See manager.ts for where it is spawned.
  */
 
 const logger = parentLogger.child({ filename: 'sseServer/server' });
@@ -22,7 +23,7 @@ function stopServer() {
   if (!httpServer) return;
 
   // stop listening for inter-process messages
-  process.off('message', sendSseMessage);
+  process.off('message', broadcastMessageToClients);
 
   // stop accepting new connections - callback runs when
   // all existing connections are closed
@@ -91,9 +92,9 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
 /**
  * Broadcasts incoming data to all connected clients.
  */
-function sendSseMessage(data: string) {
+function broadcastMessageToClients(message: SseMessage) {
   connections.forEach((response) => {
-    response.write(`data: ${data}\n\n`);
+    response.write(serializeSseMessage(message));
   });
 }
 
@@ -124,7 +125,7 @@ async function main() {
     }
 
     // listen for inter-process messages and broadcast them to all clients
-    process.on('message', sendSseMessage);
+    process.on('message', broadcastMessageToClients);
   });
 }
 

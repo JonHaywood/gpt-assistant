@@ -1,8 +1,9 @@
 import { fork } from 'child_process';
 import path from 'path';
 import { parentLogger } from '../logger';
+import { SseMessage } from './message';
 
-const logger = parentLogger.child({ filename: 'sseServer/launch' });
+const logger = parentLogger.child({ filename: 'sseServer/manager' });
 
 let serverProcess: ReturnType<typeof fork> | null = null;
 
@@ -96,7 +97,7 @@ export function stopSseServer() {
 /**
  * Sends message to the SSE server process using inter-process communication.
  */
-export function sendMessageToSseServer(message: string) {
+export function sendMessageToSseServer(message: SseMessage) {
   if (!serverProcess) {
     logger.error('SSE server process is not running, unable to send message.');
     return;

@@ -8,7 +8,7 @@ import {
   playSoundEffectFromFile,
 } from './soundEffects';
 import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
-import { startSseServer, stopSseServer } from './sseServer/launch';
+import { startSseServer, stopSseServer } from './sseServer/manager';
 import { shutdownStopDetector } from './stopDetector';
 import { shutdownWakewordEngine } from './wakeword';
 

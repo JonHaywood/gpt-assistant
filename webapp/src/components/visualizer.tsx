@@ -12,40 +12,6 @@ interface Renderer {
   cleanup: () => void;
 }
 
-interface CustomAudioAnalyser extends THREE.AudioAnalyser {
-  updateFrequencyData: (data: number[]) => void;
-}
-
-function createCustomAudioAnalyser(
-  audio: THREE.Audio,
-  frequencyBands: number = 32
-): CustomAudioAnalyser {
-  const analyser = new THREE.AudioAnalyser(
-    audio,
-    frequencyBands
-  ) as CustomAudioAnalyser;
-
-  const frequencyBuffer = new Uint8Array(frequencyBands);
-
-  analyser.getFrequencyData = () => frequencyBuffer;
-
-  analyser.getAverageFrequency = () => {
-    return (
-      frequencyBuffer.reduce((acc, val) => acc + val, 0) /
-      frequencyBuffer.length
-    );
-  };
-
-  analyser.updateFrequencyData = (data: number[]) => {
-    for (let i = 0; i < data.length; i++) {
-      frequencyBuffer[i] = Math.min(255, Math.max(0, data[i] * 255)); // Normalize to 0-255
-    }
-    console.log("updated freq buffer:", frequencyBuffer);
-  };
-
-  return analyser;
-}
-
 /**
  * See the following for more information:
  * article: https://waelyasmina.net/articles/how-to-create-a-3d-audio-visualizer-using-three-js/
@@ -100,6 +66,7 @@ function createRenderer(container: HTMLDivElement): Renderer {
     u_red: { value: params.red },
     u_green: { value: params.green },
     u_blue: { value: params.blue },
+    u_speaking: { type: "b", value: false },
   };
 
   const mat = new THREE.ShaderMaterial({
@@ -195,13 +162,11 @@ function createRenderer(container: HTMLDivElement): Renderer {
         }
 
         uniform float u_time;
-        uniform float u_frequency;
+        uniform bool u_speaking;
 
         void main() {
-            //float noise = 5. * pnoise(position + u_time, vec3(10.));
-            float noise = 2. * pnoise(position + u_time, vec3(10.));
-            //float displacement = noise / 10.;
-            float displacement = (u_frequency / 30.) * (noise / 10.);
+            float noise = 5. * pnoise(position + u_time, vec3(10.));
+            float displacement = u_speaking ? (noise / 10.) : 0.0;
             vec3 newPosition = position + normal * displacement;
 
             gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -239,24 +204,12 @@ function createRenderer(container: HTMLDivElement): Renderer {
   const listener = new THREE.AudioListener();
   camera.add(listener);
 
-  const sound = new THREE.Audio(listener);
-
-  // const audioLoader = new THREE.AudioLoader();
-  // audioLoader.load("/beats.mp3", (buffer) => {
-  //   sound.setBuffer(buffer);
-  //   sound.setVolume(0.5);
-  //   window.addEventListener("click", () => sound.play());
-  // });
-
-  const analyser = createCustomAudioAnalyser(sound, 32);
-
   const source = new EventSource("http://10.0.33.206:8900");
 
-  source.onmessage = (event) => {
+  source.addEventListener("speaking", (event) => {
     console.log("SSE message received:", event.data);
-    const data: number[] = JSON.parse(event.data);
-    analyser.updateFrequencyData(data);
-  };
+    uniforms.u_speaking.value = event.data === "true";
+  });
 
   const clock = new THREE.Clock();
 
@@ -267,8 +220,6 @@ function createRenderer(container: HTMLDivElement): Renderer {
     camera.position.y += (-mouseY - camera.position.y) * 0.5;
     camera.lookAt(scene.position);
     uniforms.u_time.value = clock.getElapsedTime();
-    //console.log("avg freq:", analyser.getAverageFrequency());
-    uniforms.u_frequency.value = analyser.getAverageFrequency();
     bloomComposer.render();
     animationHandle = requestAnimationFrame(animate);
   };
