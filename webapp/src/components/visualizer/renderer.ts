@@ -9,6 +9,10 @@ export interface Visualizer3D {
   cleanup: () => void;
 }
 
+export interface SpeakingHandler {
+  (speaking: boolean): void;
+}
+
 interface MouseCoords {
   x: number;
   y: number;
@@ -216,11 +220,16 @@ function setupMouseInteraction(
   return mousemoveListener;
 }
 
-function setupServerEvents(uniforms: Record<string, THREE.IUniform>) {
+function setupServerEvents(
+  uniforms: Record<string, THREE.IUniform>,
+  onSpeaking: SpeakingHandler
+) {
   const source = new EventSource("http://10.0.33.206:8900");
 
   source.addEventListener("speaking", (event) => {
-    uniforms.u_speaking.value = event.data === "true";
+    const speaking = event.data === "true";
+    uniforms.u_speaking.value = speaking;
+    onSpeaking(speaking);
   });
 
   return () => source.close();
@@ -280,7 +289,8 @@ function setupResizeHandling(
  *   - repo: https://github.com/WaelYasmina/audiovisualizer
  */
 export function createVisualizationRenderer(
-  container: HTMLDivElement
+  container: HTMLDivElement,
+  onSpeaking: SpeakingHandler
 ): Visualizer3D {
   const width = container.clientWidth;
   const height = container.clientHeight;
@@ -318,7 +328,7 @@ export function createVisualizationRenderer(
   const mousemoveListener = setupMouseInteraction(mouseCoords, width, height);
 
   // setup events being pushed from the server
-  const closeEventSource = setupServerEvents(uniforms);
+  const closeEventSource = setupServerEvents(uniforms, onSpeaking);
 
   // start the animation loop
   const animationHandle = setupAnimationLoop(
