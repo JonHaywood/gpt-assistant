@@ -11,5 +11,11 @@ RUN npm install --no-audit
 # Copy the rest of the application files
 COPY . /app
 
+# Accept the SSE port build argument
+ARG NEXT_PUBLIC_ASSISTANT_SSE_PORT
+
+# Since this is a client-side environment variable, need to set it before building
+ENV NEXT_PUBLIC_ASSISTANT_SSE_PORT=$NEXT_PUBLIC_ASSISTANT_SSE_PORT
+
 # Expose the port the app runs on
 EXPOSE 3000

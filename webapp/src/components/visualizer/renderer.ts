@@ -220,8 +220,8 @@ function setupMouseInteraction(
   return mousemoveListener;
 }
 
-function setupServerEvents(onSpeaking: SpeakingHandler) {
-  const source = new EventSource("http://10.0.33.206:8900");
+function setupServerEvents(sseUrl: string, onSpeaking: SpeakingHandler) {
+  const source = new EventSource(sseUrl);
 
   source.addEventListener("speaking", (event) => {
     const speaking = event.data === "true";
@@ -294,6 +294,7 @@ function setupResizeHandling(
  */
 export function createVisualizationRenderer(
   container: HTMLDivElement,
+  sseUrl: string,
   onSpeaking: SpeakingHandler
 ): Visualizer3D {
   const width = container.clientWidth;
@@ -333,7 +334,7 @@ export function createVisualizationRenderer(
   const mousemoveListener = setupMouseInteraction(mouseCoords, width, height);
 
   // setup events being pushed from the server
-  const closeEventSource = setupServerEvents((speaking) => {
+  const closeEventSource = setupServerEvents(sseUrl, (speaking) => {
     targetSpeakingIntensity.value = speaking ? 1.0 : 0.0;
     onSpeaking(speaking);
   });

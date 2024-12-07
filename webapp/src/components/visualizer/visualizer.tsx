@@ -4,6 +4,15 @@ import { useEffect, useRef } from "react";
 import { createVisualizationRenderer, Visualizer3D } from "./renderer";
 import { useState } from "react";
 
+function getSseUrl() {
+  // allow .env to override the default address
+  const address =
+    process.env.NEXT_PUBLIC_ASSISTANT_SSE_ADDRESS || window.location.hostname;
+  const port = process.env.NEXT_PUBLIC_ASSISTANT_SSE_PORT;
+
+  return `${window.location.protocol}//${address}:${port}`;
+}
+
 export function Visualizer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -13,7 +22,11 @@ export function Visualizer() {
     let visualizer: Visualizer3D;
 
     if (currentContainer) {
-      visualizer = createVisualizationRenderer(currentContainer, setIsSpeaking);
+      visualizer = createVisualizationRenderer(
+        currentContainer,
+        getSseUrl(),
+        setIsSpeaking
+      );
       currentContainer.appendChild(visualizer.domElement);
     }
 

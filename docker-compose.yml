@@ -41,6 +41,8 @@ services:
     build:
       context: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
       dockerfile: ${WEBAPP_DOCKERFILE:-Dockerfile} # Can overriide to specify dev version during development
+      args:
+        - NEXT_PUBLIC_ASSISTANT_SSE_PORT=8900 # Sets the port the assistant SSE service is running on
     restart: unless-stopped
     volumes:
       - ./webapp/src:/app/src # Mount source code for real-time updates in the container
@@ -52,6 +54,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # Allows the webapp to communicate with the Docker daemon
     networks:
       - gpt-assistant
+    ports:
+      - "8800:3000" # Maps port 8800 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
     command: ${WEBAPP_COMMAND:-node server.js} #server.js is created by next build from standalone output: https://nextjs.org/docs/pages/api-reference/next-config-js/output
