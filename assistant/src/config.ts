@@ -52,7 +52,7 @@ export const VOLUME_CONTROL_DEVICE_INDEX = parseInt(
 export const OPENAI_MODEL = getConfigVar('OPENAI_MODEL', '4o');
 export const DEVICE_INDEX = parseInt(getConfigVar('DEVICE_INDEX', '2'));
 export const WAKEWORD_THRESHOLD = parseFloat(
-  getConfigVar('WAKEWORD_THRESHOLD', '0.5'),
+  getConfigVar('WAKEWORD_THRESHOLD', '0.05'),
 );
 export const ASSISTANT_NAME = getConfigVar('ASSISTANT_NAME', 'Bailiwick');
 export const ASSISTANT_NAME_IS_CUSTOM =
@@ -61,13 +61,13 @@ export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(
   getConfigVar('ASSISTANT_LISTEN_TIMEOUT', '5000'),
 );
 export const ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT = parseInt(
-  getConfigVar('ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT', '1500'),
+  getConfigVar('ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT', '10000'),
 );
 export const ASSISTANT_MAX_RECORDING_LENGTH = parseInt(
   getConfigVar('ASSISTANT_MAX_RECORDING_LENGTH', '15000'),
 );
 export const ASSISTANT_VOICEDETECTION_THRESHOLD = parseFloat(
-  getConfigVar('ASSISTANT_VOICEDETECTION_THRESHOLD', '0.1'),
+  getConfigVar('ASSISTANT_VOICEDETECTION_THRESHOLD', '0.05'),
 );
 export const ASK_HISTORY_SIZE = parseInt(getConfigVar('ASK_HISTORY_SIZE', '5'));
 export const ADDRESS = getConfigVar('ADDRESS', '');
