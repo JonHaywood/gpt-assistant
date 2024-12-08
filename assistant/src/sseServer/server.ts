@@ -110,7 +110,7 @@ async function main() {
 
   // handle server errors
   httpServer.on('error', (err) => {
-    logger.error('🚨 SSE server error:', err);
+    logger.error(err, '🚨 SSE server error:');
     stopServer();
     process.exit(1);
   });

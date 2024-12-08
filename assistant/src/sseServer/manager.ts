@@ -46,15 +46,9 @@ export function startSseServer(): Promise<void> {
     // handle child process exit and error events
     serverProcess.on('exit', (code, signal) => {
       serverProcess = null;
-
-      // server exited normally, do not restart
-      if (signal === 'SIGINT' || signal === 'SIGTERM' || code === 0) {
-        logger.info('SSE server process stopped.');
-        return;
-      }
-
-      logger.info('Restarting SSE server...');
-      startSseServer();
+      logger.info(
+        `SSE server process exited with code ${code} and signal ${signal}`,
+      );
     });
 
     serverProcess.on('error', (error) => {

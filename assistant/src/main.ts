@@ -18,9 +18,6 @@ async function main() {
   try {
     logger.info('🤖 GPT-Assistant starting up!');
 
-    // play startup sound from file (not loaded into memory)
-    playSoundEffectFromFile(FileSoundEffect.STARTUP);
-
     // gracefully handle app/process shutdown
     setupProcessShutdownHandlers();
 
@@ -32,6 +29,9 @@ async function main() {
 
     // start the first TTS process
     startPiperTTSProcess();
+
+    // play startup sound from file (not loaded into memory)
+    playSoundEffectFromFile(FileSoundEffect.STARTUP);
 
     // start the listening loop
     await listen(handleAudioData);
