@@ -77,3 +77,8 @@ export const LOG_LEVEL = getConfigVar('LOG_LEVEL', 'trace');
 export const LOGGING_WS_PORT = parseInt(
   getConfigVar('LOGGING_WS_PORT', '8800'),
 );
+export const GOOGLE_API_KEY = getConfigVar('GOOGLE_API_KEY', '');
+export const GOOGLE_SEARCH_ENGINE_ID = getConfigVar(
+  'GOOGLE_SEARCH_ENGINE_ID',
+  '',
+);

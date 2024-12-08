@@ -4,6 +4,7 @@ import { parentLogger } from '../../logger';
 import { AbortError } from '../../utils/abort';
 import { calculate, calculateWithSubtitutes } from './calculate';
 import { clock } from './clock';
+import { googleSearch } from './google';
 import { triggerShutdown } from './system';
 import { adjustVolume, getVolume, setVolume } from './volume';
 import { getHourlyWeatherForecast, getWeatherForecast } from './weather';
@@ -27,6 +28,8 @@ const allTools: AutoParseableTool<any>[] = [
   setVolume,
   // system tools
   triggerShutdown,
+  // google tools
+  googleSearch,
 ];
 
 export interface Tools {
