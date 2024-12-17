@@ -58,7 +58,7 @@ export const ASSISTANT_NAME = getConfigVar('ASSISTANT_NAME', 'Bailiwick');
 export const ASSISTANT_NAME_IS_CUSTOM =
   getConfigVar('ASSISTANT_NAME_IS_CUSTOM', 'true') === 'true';
 export const ASSISTANT_ONLY_SILENCE_TIMEOUT = parseInt(
-  getConfigVar('ASSISTANT_LISTEN_TIMEOUT', '5000'),
+  getConfigVar('ASSISTANT_ONLY_SILENCE_TIMEOUT', '5000'),
 );
 export const ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT = parseInt(
   getConfigVar('ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT', '1500'),
@@ -74,9 +74,6 @@ export const ADDRESS = getConfigVar('ADDRESS', '');
 export const TIMEZONE = getConfigVar('TIMEZONE', '');
 export const GEOCODIO_API_KEY = getConfigVar('GEOCODIO_API_KEY', '');
 export const LOG_LEVEL = getConfigVar('LOG_LEVEL', 'trace');
-export const LOGGING_WS_PORT = parseInt(
-  getConfigVar('LOGGING_WS_PORT', '8800'),
-);
 export const GOOGLE_API_KEY = getConfigVar('GOOGLE_API_KEY', '');
 export const GOOGLE_SEARCH_ENGINE_ID = getConfigVar(
   'GOOGLE_SEARCH_ENGINE_ID',

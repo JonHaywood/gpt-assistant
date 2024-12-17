@@ -115,8 +115,16 @@ const data = {
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "/settings",
+          title: "API Keys",
+          url: "/settings/api-keys",
+        },
+        {
+          title: "Assistant",
+          url: "/settings/assistant",
+        },
+        {
+          title: "Audio",
+          url: "/settings/audio",
         },
         {
           title: "Tools",

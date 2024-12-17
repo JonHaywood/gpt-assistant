@@ -41,3 +41,6 @@ next-env.d.ts
 
 # logs
 logs
+
+# shared config file
+config.json
