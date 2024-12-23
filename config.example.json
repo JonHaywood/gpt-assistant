@@ -1,9 +1,0 @@
-{
-    "OPENAI_API_KEY": "",
-    "PICOVOICE_ACCESS_KEY": "",
-    "VOLUME_CONTROL_DEVICE": "",
-    "VOLUME_CONTROL_DEVICE_INDEX": 0,
-    "ADDRESS": "",
-    "TIMEZONE": "",
-    "GEOCODIO_API_KEY": ""
-}

@@ -11,16 +11,19 @@ services:
   assistant:
     container_name: gpt-assistant_assistant
     build:
-      context: ./assistant # Builds the Docker image using the Dockerfile in the assistant directory
-      dockerfile: ${ASSISTANT_DOCKERFILE:-Dockerfile} # Can overriide to specify dev version during development
+      context: ./ # Defines everything that is available for use for this compose file
+      dockerfile: packages/assistant/${ASSISTANT_DOCKERFILE:-Dockerfile} # Can overriide to specify dev version during development
     restart: unless-stopped
     privileged: true # Gives the container permission to access to hardware
     volumes:
-      - ./assistant/src:/app/src # Mount source code for real-time updates in the container
-      - ./assistant/package.json:/app/package.json # Mount package.json
-      - ./assistant/package-lock.json:/app/package-lock.json # Mount package-lock.json
-      - ./config.json:/app/config.json # Mount the config file
-      - logs:/app/logs # Mount the logs volume
+      - ./packages/assistant/src:/app/packages/assistant/src # Mount source code for real-time updates in the container
+      - ./packages/shared/src:/app/packages/shared/src # Mount shared source code for real-time updates in the container
+      - ./packages/assistant/package.json:/app/packages/assistant/package.json # Mount package.json
+      - ./packages/assistant/package-lock.json:/app/packages/assistant/package-lock.json # Mount package-lock.json
+      - ./packages/shared/package.json:/app/packages/shared/package.json # Mount shared package.json
+      - ./packages/shared/package-lock.json:/app/packages/shared/package-lock.json # Mount shared package-lock.json
+      - ./config.json:/app/packages/assistant/config.json # Mount the config file in the app root
+      - logs:/app/packages/assistant/logs # Mount the logs volume
       - /etc/asound.conf:/etc/asound.conf # Audio config needed for audio to work
       - /dev/snd:/dev/snd # Gives access to the sound devices on the host machine
       - /dev/shm:/dev/shm # Hardware that needs to be mounted for audio to work
@@ -33,24 +36,27 @@ services:
     tmpfs:
       - /run # Used to store temporary files that are deleted on reboot
       - /run/lock # Used for preventing concurrent access to resources
-    stdin_open: true # Allows you to start an interactive session with the container
+    stdin_open: true # Allows you to start an interactive session with the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
     command: ${ASSISTANT_COMMAND:-bash -c "node ./dist/main.js"} # Using bash allows SIGTERM to be caught and handled properly
   webapp:
     container_name: gpt-assistant_webapp
     build:
-      context: ./webapp # Builds the Docker image using the Dockerfile in the webapp directory
-      dockerfile: ${WEBAPP_DOCKERFILE:-Dockerfile} # Can overriide to specify dev version during development
+      context: ./ # Defines everything that is available for use for this compose file
+      dockerfile: packages/webapp/${WEBAPP_DOCKERFILE:-Dockerfile} # Can overriide to specify dev version during development
       args:
         - NEXT_PUBLIC_ASSISTANT_SSE_PORT=8900 # Sets the port the assistant SSE service is running on
     restart: unless-stopped
     volumes:
-      - ./webapp/src:/app/src # Mount source code for real-time updates in the container
-      - ./webapp/public:/app/public # Mount public directory
-      - ./webapp/package.json:/app/package.json # Mount package.json
-      - ./webapp/package-lock.json:/app/package-lock.json # Mount package-lock.json
-      - ./config.json:/app/config.json # Mount the config file
-      - logs:/app/logs # Mount the logs volume
+      - ./packages/webapp/src:/app/packages/webapp/src # Mount source code for real-time updates in the container
+      - ./packages/shared/src:/app/packages/shared/src # Mount shared source code for real-time updates in the container
+      - ./packages/webapp/public:/app/packages/webapp/public # Mount public directory
+      - ./packages/webapp/package.json:/app/packages/webapp/package.json # Mount package.json
+      - ./packages/webapp/package-lock.json:/app/packages/webapp/package-lock.json # Mount package-lock.json
+      - ./packages/shared/package.json:/app/packages/shared/package.json # Mount shared package.json
+      - ./packages/shared/package-lock.json:/app/packages/shared/package-lock.json # Mount shared package-lock.json
+      - ./config.json:/app/packages/webapp/config.json # Mount the config file
+      - logs:/app/packages/webapp/logs # Mount the logs volume
       - /var/run/docker.sock:/var/run/docker.sock # Allows the webapp to communicate with the Docker daemon
     networks:
       - gpt-assistant

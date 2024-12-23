@@ -1,0 +1,11 @@
+{
+  "name": "gpt-assistant",
+  "version": "1.0.0",
+  "description": "GPT-Assistant your own personal Siri, your own \"OK Google\", a Typescript, Node.js-based digital home assistant built to run on a Raspberry Pi.",
+  "keywords": ["gpt", "chatgpt", "llm", "assistant", "raspberry-pi", "home-automation", "python", "typescript", "react", "docker", "ai", "speech-recognition"],
+  "author": "Jon Haywood",
+  "license": "ISC",
+  "workspaces": [
+    "packages/*"
+  ]
+}

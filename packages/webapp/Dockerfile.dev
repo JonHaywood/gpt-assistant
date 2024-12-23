@@ -1,0 +1,24 @@
+FROM node:18-slim
+
+WORKDIR /app
+
+# Copy package.json and package-lock.json first for webapp, shared, and root
+COPY ./packages/webapp/package*.json ./packages/assistant/
+COPY ./packages/shared/package*.json ./packages/shared/
+COPY ./package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application files
+COPY ./packages/webapp ./packages/webapp/
+COPY ./packages/shared ./packages/shared/
+
+# Accept the SSE port build argument
+ARG NEXT_PUBLIC_ASSISTANT_SSE_PORT
+
+# Since this is a client-side environment variable, need to set it before building
+ENV NEXT_PUBLIC_ASSISTANT_SSE_PORT=$NEXT_PUBLIC_ASSISTANT_SSE_PORT
+
+# Expose the port the app runs on
+EXPOSE 3000

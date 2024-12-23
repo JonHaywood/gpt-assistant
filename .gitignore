@@ -1,0 +1,5 @@
+# npm packages
+node_modules
+
+# top level config file
+config.json

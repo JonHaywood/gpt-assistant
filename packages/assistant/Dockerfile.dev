@@ -1,0 +1,27 @@
+# Build context is the root of the project
+
+# base image with the necessary dependencies
+FROM jonhaywood/raspberrypi4-assistant:latest
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json first for assistant, shared, and root
+COPY ./packages/assistant/package*.json ./packages/assistant/
+COPY ./packages/shared/package*.json ./packages/shared/
+COPY ./package*.json ./
+
+# Install dependencies using npm
+RUN npm install
+
+# Copy the rest of the application files
+COPY ./packages/assistant ./packages/assistant/
+COPY ./packages/shared ./packages/shared/
+
+# Create a python virtual environment (to allow for pip installs)
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install Python dependencies from requirements.txt
+RUN pip install -r ./packages/assistant/requirements.txt
