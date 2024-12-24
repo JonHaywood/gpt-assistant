@@ -76,7 +76,7 @@ async function getForecastUrls(
 
 async function _getWeatherForecast(location: string | null, useHourly = false) {
   if (!location) {
-    location = ADDRESS;
+    location = ADDRESS ?? null;
     if (!location) return 'Location has not been configured.';
   }
 
