@@ -22,7 +22,7 @@ let tailInstance: Tail | null = null;
 function broadcastLogLine(line: string) {
   clients.forEach(async (client) => {
     try {
-      await client.writer.write(`data: ${JSON.stringify({ line })}\n\n`);
+      await client.writer.write(`data: ${line}\n\n`);
     } catch (error) {
       console.error(
         `LOGS: Failed to send message to client ${client.id}:`,
