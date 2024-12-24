@@ -38,7 +38,7 @@ services:
       - /run/lock # Used for preventing concurrent access to resources
     stdin_open: true # Allows you to start an interactive session with the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
-    command: ${ASSISTANT_COMMAND:-bash -c "node ./dist/main.js"} # Using bash allows SIGTERM to be caught and handled properly
+    command: ${ASSISTANT_COMMAND:-bash -c "node ./packages/assistant/dist/main.js"} # Using bash allows SIGTERM to be caught and handled properly
   webapp:
     container_name: gpt-assistant_webapp
     build:
@@ -64,4 +64,4 @@ services:
       - "8800:3000" # Maps port 8800 on the host to port 3000 in the container
     stdin_open: true # Allows you to run commands interactively in the container. Ex: 'docker exec -it <container_id> bash'
     tty: true # Allows terminal interaction
-    command: ${WEBAPP_COMMAND:-node server.js} #server.js is created by next build from standalone output: https://nextjs.org/docs/pages/api-reference/next-config-js/output
+    command: ${WEBAPP_COMMAND:-node ./packages/webapp/server.js} #server.js is created by next build from standalone output: https://nextjs.org/docs/pages/api-reference/next-config-js/output

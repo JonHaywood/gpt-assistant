@@ -7,5 +7,9 @@
   "license": "ISC",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "dev:assistant": "npm run dev --workspace=assistant",
+    "dev:webapp": "npm run dev --workspace=webapp"
+  }
 }
