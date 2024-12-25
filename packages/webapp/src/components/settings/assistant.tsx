@@ -56,7 +56,7 @@ export default function FormComponent({ config }: { config: Config }) {
     <Form {...form}>
       <form
         action={formAction}
-        className="space-y-6 w-1/2"
+        className="space-y-6 w-1/2 md:w-3/4"
         onSubmit={() => formRef.current?.submit()}
         ref={formRef}
       >
