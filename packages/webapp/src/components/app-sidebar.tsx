@@ -13,6 +13,7 @@ import {
 import packageJson from "../../package.json";
 
 import { NavMain } from "@/components/nav-main";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { NavUser } from "@/components/nav-user";
 import { AdminActions } from "@/components/admin-actions";
 import {
@@ -144,9 +145,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
+      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
