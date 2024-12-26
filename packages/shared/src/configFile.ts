@@ -78,6 +78,18 @@ export async function getConfig() {
 }
 
 /**
+ * Function that saves the given config object to the config.json file.
+ * @param config the config object to save
+ */
+export async function saveConfig(config: Config) {
+  try {
+    await writeFile(CONFIG_PATH, JSON.stringify(config, null, 2));
+  } catch (e) {
+    throw new ConfigError("Error occurred writing config.json");
+  }
+}
+
+/**
  * Function that returns a valid, completed config object. If one does not exist,
  * a basic but incomplete config will be created.
  * @throws ConfigError if the config is invalid or cannot be read

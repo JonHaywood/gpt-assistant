@@ -30,18 +30,18 @@ export interface Config {
  * Validation schema for the configuration object.
  */
 export const configSchema = z.object({
-  ASK_HISTORY_SIZE: z.number().min(0).max(100),
-  ASSISTANT_MAX_RECORDING_LENGTH: z.number().min(0).max(30000),
+  ASK_HISTORY_SIZE: z.coerce.number().min(0).max(100),
+  ASSISTANT_MAX_RECORDING_LENGTH: z.coerce.number().min(0).max(30000),
   ASSISTANT_NAME: z.string(),
-  ASSISTANT_NAME_IS_CUSTOM: z.boolean(),
-  ASSISTANT_ONLY_SILENCE_TIMEOUT: z.number().min(0).max(30000),
-  ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT: z.number().min(0).max(30000),
-  ASSISTANT_VOICEDETECTION_THRESHOLD: z.number().min(0).max(1),
+  ASSISTANT_NAME_IS_CUSTOM: z.coerce.boolean(),
+  ASSISTANT_ONLY_SILENCE_TIMEOUT: z.coerce.number().min(0).max(30000),
+  ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT: z.coerce.number().min(0).max(30000),
+  ASSISTANT_VOICEDETECTION_THRESHOLD: z.coerce.number().min(0).max(1),
   LOG_LEVEL: z.string(),
-  MICROPHONE_DEVICE_INDEX: z.number().min(0).max(10),
+  MICROPHONE_DEVICE_INDEX: z.coerce.number().min(0).max(10),
   OPENAI_API_KEY: z.string(),
   OPENAI_MODEL: z.string(),
   PICOVOICE_ACCESS_KEY: z.string(),
   VOLUME_CONTROL_DEVICE: z.string(),
-  VOLUME_CONTROL_DEVICE_INDEX: z.number().min(0).max(10),
+  VOLUME_CONTROL_DEVICE_INDEX: z.coerce.number().min(0).max(10),
 });

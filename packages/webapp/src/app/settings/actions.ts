@@ -1,6 +1,7 @@
 "use server";
 
 import { configSchema } from "shared";
+import { getConfig, saveConfig } from "shared/src/server";
 
 export interface FormState {
   success: boolean;
@@ -41,8 +42,11 @@ export async function onSubmitAction(
     };
   }
 
-  // TODO: save to config.json file
-  console.log("!!! Saving to config.json", parsed.data);
+  // save to config.json file, overwriting existing values
+  const existingConfig = await getConfig();
+
+  const newConfig = { ...existingConfig, ...parsed.data };
+  await saveConfig(newConfig);
 
   return {
     success: true,
