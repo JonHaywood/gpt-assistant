@@ -50,6 +50,7 @@ export async function onSubmitAction(
 
   return {
     success: true,
-    message: "Form submitted successfully",
+    message:
+      "Settings saved successfully. Restart the assistant to apply changes.",
   };
 }
