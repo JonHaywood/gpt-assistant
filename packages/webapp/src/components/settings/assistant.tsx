@@ -36,6 +36,7 @@ import { FormStateDisplay } from "../formStateDisplay";
 import { Config, configSchema } from "shared";
 
 export default function FormComponent({ config }: { config: Config }) {
+  console.log("config", config);
   const [state, formAction] = useActionState(onSubmitAction, {
     success: false,
     message: "",
@@ -130,21 +131,11 @@ export default function FormComponent({ config }: { config: Config }) {
                       </div>
                       <div>
                         {isAssistantNameCustom ? (
-                          <div className="w-full flex gap-2">
-                            <div className="text-sm text-gray-600 font-mono flex-1 border border-gray-300 rounded-md py-2 px-4">
-                              {field.value
-                                ? `/assets/${field.value}.ppn`
-                                : "Select a PPN file"}
-                            </div>
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              className="text-xs hover:bg-gray-200"
-                            >
-                              <FileUp size={16} />
-                              Upload New PPN File
-                            </Button>
-                          </div>
+                          <Input
+                            placeholder="Assistant Name"
+                            {...field}
+                            className="w-full"
+                          />
                         ) : (
                           <Select>
                             <FormControl>
@@ -165,35 +156,64 @@ export default function FormComponent({ config }: { config: Config }) {
                     </div>
                   </FormControl>
                   <FormDescription>
-                    {isAssistantNameCustom ? (
-                      <>
-                        You have selected a{" "}
-                        <a
-                          href="https://picovoice.ai/blog/console-tutorial-custom-wake-word/"
-                          target="_blank"
-                        >
-                          custom wake word
-                        </a>
-                        . Upload a new PPN file to change the wake word. This
-                        can be created using the&nbsp;
-                        <a
-                          href="https://console.picovoice.ai/"
-                          target="_blank"
-                          className="underline text-blue-600"
-                        >
-                          Picovoice Console
-                        </a>
-                        . The wake word is used to trigger the assistant to
-                        start listening for requests.
-                      </>
-                    ) : (
-                      <></>
-                    )}
+                    This is the name that the assistant will respond to. If you
+                    select a custom name, you will need to provide a custom wake
+                    word PPN file.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {isAssistantNameCustom && (
+              <FormField
+                control={form.control}
+                name="ASSISTANT_PPN_FILENAME"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assistant PPN Filename</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                        <div className="text-sm text-gray-600 font-mono flex-1 border border-gray-300 rounded-md py-2 px-4">
+                          {field.value
+                            ? `/assets/${field.value}.ppn`
+                            : "Select a PPN file"}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="text-xs hover:bg-gray-200"
+                        >
+                          <FileUp size={16} />
+                          Upload New PPN File
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      This is the file name of the{" "}
+                      <a
+                        href="https://picovoice.ai/blog/console-tutorial-custom-wake-word/"
+                        target="_blank"
+                        className="underline text-blue-600"
+                      >
+                        custom wake word PPN file
+                      </a>
+                      . Upload a new PPN file to change the wake word. This can
+                      be created using the&nbsp;
+                      <a
+                        href="https://console.picovoice.ai/"
+                        target="_blank"
+                        className="underline text-blue-600"
+                      >
+                        Picovoice Console
+                      </a>
+                      . The wake word is used to trigger the assistant to start
+                      listening for requests.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="ASSISTANT_ONLY_SILENCE_TIMEOUT"

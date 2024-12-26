@@ -9,6 +9,7 @@ export interface Config {
   ASSISTANT_MAX_RECORDING_LENGTH: number;
   ASSISTANT_NAME: string;
   ASSISTANT_NAME_IS_CUSTOM: boolean;
+  ASSISTANT_PPN_FILENAME?: string;
   ASSISTANT_ONLY_SILENCE_TIMEOUT: number;
   ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT: number;
   ASSISTANT_VOICEDETECTION_THRESHOLD: number;
@@ -34,6 +35,7 @@ export const configSchema = z.object({
   ASSISTANT_MAX_RECORDING_LENGTH: z.coerce.number().min(0).max(30000),
   ASSISTANT_NAME: z.string(),
   ASSISTANT_NAME_IS_CUSTOM: z.coerce.boolean(),
+  ASSISTANT_PPN_FILENAME: z.string().optional(),
   ASSISTANT_ONLY_SILENCE_TIMEOUT: z.coerce.number().min(0).max(30000),
   ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT: z.coerce.number().min(0).max(30000),
   ASSISTANT_VOICEDETECTION_THRESHOLD: z.coerce.number().min(0).max(1),

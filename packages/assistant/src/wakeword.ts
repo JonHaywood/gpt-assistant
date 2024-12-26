@@ -3,6 +3,7 @@ import path from 'path';
 import {
   ASSISTANT_NAME,
   ASSISTANT_NAME_IS_CUSTOM,
+  ASSISTANT_PPN_FILENAME,
   PICOVOICE_ACCESS_KEY,
   WAKEWORD_THRESHOLD,
 } from './config';
@@ -15,8 +16,8 @@ const logger = parentLogger.child({ filename: 'wakeword' });
 const porcupine = new Porcupine(
   PICOVOICE_ACCESS_KEY,
   [
-    ASSISTANT_NAME_IS_CUSTOM
-      ? path.resolve(`assets/${ASSISTANT_NAME.toLowerCase()}.ppn`)
+    ASSISTANT_NAME_IS_CUSTOM && ASSISTANT_PPN_FILENAME
+      ? path.resolve(`assets/${ASSISTANT_PPN_FILENAME.toLowerCase()}.ppn`)
       : ASSISTANT_NAME, // NOTE: if string is not a built-in keyword this will fail
   ],
   [WAKEWORD_THRESHOLD],
