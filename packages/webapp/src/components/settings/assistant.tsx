@@ -216,6 +216,29 @@ export default function FormComponent({ config }: { config: Config }) {
             )}
             <FormField
               control={form.control}
+              name="WAKEWORD_THRESHOLD"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Wake Word Threshold</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Wake Word Threshold"
+                      type="number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    The threshold for wake word detection. Defaults to 0.05,
+                    valid values are between 0.0 and 1.0. Set lower if the
+                    assistant is not detecting the wake word, set higher if the
+                    assistant is detecting noise as the wake word.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="ASSISTANT_ONLY_SILENCE_TIMEOUT"
               render={({ field }) => (
                 <FormItem>

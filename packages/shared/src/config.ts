@@ -46,4 +46,5 @@ export const configSchema = z.object({
   PICOVOICE_ACCESS_KEY: z.string(),
   VOLUME_CONTROL_DEVICE: z.string(),
   VOLUME_CONTROL_DEVICE_INDEX: z.coerce.number().min(0).max(10),
+  WAKEWORD_THRESHOLD: z.coerce.number().min(0).max(1),
 });
