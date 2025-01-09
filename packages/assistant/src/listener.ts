@@ -1,15 +1,9 @@
-// @ts-expect-error - no types available for the pvrecorder-node package
-import { PvRecorder } from '@picovoice/pvrecorder-node';
-import { MICROPHONE_DEVICE_INDEX } from './config';
 import { ListenerDataCallback } from './listener.types';
 import { parentLogger } from './logger';
+import { recorder } from './picovoice';
 import { getAppLevelAbortSignal } from './shutdown';
-import { FRAME_LENGTH } from './wakeword';
 
 const logger = parentLogger.child({ filename: 'listener' });
-
-// create a new recorder instance
-const recorder = new PvRecorder(FRAME_LENGTH, MICROPHONE_DEVICE_INDEX);
 
 export const SAMPLE_RATE = recorder.sampleRate;
 

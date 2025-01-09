@@ -1,15 +1,14 @@
-import { Cobra } from '@picovoice/cobra-node';
 import {
   ASSISTANT_MAX_RECORDING_LENGTH,
   ASSISTANT_ONLY_SILENCE_TIMEOUT,
   ASSISTANT_POST_SPEECH_SILENCE_TIMEOUT,
   ASSISTANT_VOICEDETECTION_THRESHOLD,
-  PICOVOICE_ACCESS_KEY,
 } from './config';
 import { SAMPLE_RATE } from './listener';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
 import { askLLM } from './openai/ask';
+import { vad } from './picovoice';
 import { recognize } from './recognizer';
 import { speak, stopCurrentSpeaking } from './speak';
 import { detectStopCommand } from './stopDetector';
@@ -17,9 +16,6 @@ import { AbortError } from './utils/abort';
 import { concatAudioBuffers, frameDuration } from './utils/audio';
 
 const logger = parentLogger.child({ filename: 'assistant' });
-
-// instance of Voice Activity Detection library, used to detect voice vs silence
-const vad = new Cobra(PICOVOICE_ACCESS_KEY);
 
 /**
  * Assistant class that reacts to incoming audio data. Is a class
@@ -142,7 +138,8 @@ export class Assistant {
 
   private detectSilenceOrNoise(frame: AudioBuffer) {
     const voiceProbability = vad.process(frame);
-    return voiceProbability < ASSISTANT_VOICEDETECTION_THRESHOLD;
+    const isSilence = voiceProbability < ASSISTANT_VOICEDETECTION_THRESHOLD;
+    return isSilence;
   }
 
   private async transcribeAndSpeak() {
