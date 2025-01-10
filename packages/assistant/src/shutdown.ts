@@ -1,5 +1,5 @@
 import { flushLogger, parentLogger } from './logger';
-import { combineAbortControllers } from './utils/abort';
+import { spawnAbortController } from './utils/abort';
 
 const logger = parentLogger.child({ filename: 'shutdown' });
 
@@ -43,17 +43,15 @@ export function setupProcessShutdownHandlers() {
 /**
  * Manages the abort state of the entire application.
  */
-const AppLevelAbortController = new AbortController();
+let AppLevelAbortController = new AbortController();
 
 /**
  * Create a new AbortController that will be aborted when the
- * main app controller is aborted.
+ * main app controller is aborted but does NOT abort the main app controller
+ * it is aborted.
  */
 export function createChildAbortController() {
-  return combineAbortControllers(
-    AppLevelAbortController,
-    new AbortController(),
-  );
+  return spawnAbortController(AppLevelAbortController);
 }
 
 /**
@@ -71,4 +69,12 @@ export function signalSystemShutdown() {
  */
 export function getAppLevelAbortSignal() {
   return AppLevelAbortController.signal;
+}
+
+/**
+ * Reset the app-level abort signal. This is useful for tests that need to
+ * reset the app-level abort signal to a fresh state.
+ */
+export function _resetAppLevelAbortSignal() {
+  AppLevelAbortController = new AbortController();
 }

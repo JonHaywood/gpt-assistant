@@ -8,25 +8,24 @@ export class AbortError extends Error {
 }
 
 /**
- * Creates a new AbortController that will be aborted if any of the
- * provided controllers are aborted.
+ * Creates a new child AbortController that will be aborted if the
+ * parent AbortController is aborted.
  */
-export function combineAbortControllers(
-  ...controllers: AbortController[]
+export function spawnAbortController(
+  parentController: AbortController,
 ): AbortController {
-  const combined = new AbortController();
+  const child = new AbortController();
 
-  for (const controller of controllers) {
-    // If any controller is already aborted, immediately abort the combined one
-    if (controller.signal.aborted) {
-      combined.abort();
-    } else {
-      // Listen for the abort event and abort the combined controller
-      controller.signal.addEventListener('abort', () => {
-        combined.abort();
-      });
-    }
+  // If any parent is already aborted, immediately abort the child
+  if (parentController.signal.aborted) {
+    child.abort();
+    return child;
   }
 
-  return combined;
+  // Listen for the abort event and abort the child controller
+  parentController.signal.addEventListener('abort', () => {
+    child.abort();
+  });
+
+  return child;
 }
