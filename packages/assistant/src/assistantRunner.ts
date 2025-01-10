@@ -1,7 +1,7 @@
 import { Assistant } from './assistant';
 import { type AudioBuffer } from './listener.types';
 import { parentLogger } from './logger';
-import { playEffect, SoundEffect } from './soundEffects';
+import { playEffect, InMemorySoundEffect } from './soundEffects';
 import { detectWakeword } from './wakeword';
 
 const logger = parentLogger.child({ filename: 'assistantRunner' });
@@ -17,7 +17,7 @@ export async function handleAudioData(frame: AudioBuffer) {
     logger.info('📶 Wake word detected!');
 
     // play sound effect to indicate wake word detection
-    playEffect(SoundEffect.BEEP);
+    playEffect(InMemorySoundEffect.BEEP);
 
     // stop the current assistant if it's running
     Assistant.stopRunningAssistant();

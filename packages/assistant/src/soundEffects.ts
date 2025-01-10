@@ -6,9 +6,9 @@ import { spawn } from 'child_process';
 const logger = parentLogger.child({ filename: 'soundEffects' });
 
 // cache sound effects in memory so they can be played quickly
-const effectBufferMap = new Map<SoundEffect, Buffer>();
+const effectBufferMap = new Map<InMemorySoundEffect, Buffer>();
 
-export enum SoundEffect {
+export enum InMemorySoundEffect {
   BEEP = 'beep',
 }
 
@@ -19,7 +19,7 @@ export enum FileSoundEffect {
 export async function loadEffectsIntoMemory() {
   logger.info('Loading sound effects into memory...');
 
-  for (const effect of Object.values(SoundEffect)) {
+  for (const effect of Object.values(InMemorySoundEffect)) {
     const filePath = `./assets/${effect}.wav`;
     try {
       const buffer = await fs.readFile(filePath);
@@ -33,10 +33,25 @@ export async function loadEffectsIntoMemory() {
   logger.info('Sound effects loaded successfully.');
 }
 
+export function playEffect(effect: InMemorySoundEffect): void;
+export function playEffect(effect: FileSoundEffect): void;
+
+export function playEffect(
+  effect: InMemorySoundEffect | FileSoundEffect,
+): void {
+  if (
+    Object.values(InMemorySoundEffect).includes(effect as InMemorySoundEffect)
+  ) {
+    playEffectFromMemory(effect as InMemorySoundEffect);
+  } else {
+    playEffectFromFile(effect as FileSoundEffect);
+  }
+}
+
 /**
  * Spawns aplay OS command to asynchronously play the given sound effect.
  */
-export function playEffect(effect: SoundEffect) {
+function playEffectFromMemory(effect: InMemorySoundEffect) {
   const audioBuffer = effectBufferMap.get(effect);
   if (!audioBuffer)
     throw new Error(
@@ -62,7 +77,11 @@ export function playEffect(effect: SoundEffect) {
   });
 }
 
-export function playSoundEffectFromFile(effect: FileSoundEffect) {
+/**
+ * Spawns aplay OS command to asynchronously play the given sound effect
+ * directly from the specified file.
+ */
+function playEffectFromFile(effect: FileSoundEffect) {
   const filePath = `./assets/${effect}.wav`;
   logger.trace(`🔊 Playing sound effect from file: ${filePath}`);
 

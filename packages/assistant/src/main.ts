@@ -5,7 +5,7 @@ import { setupProcessShutdownHandlers } from './shutdown';
 import {
   FileSoundEffect,
   loadEffectsIntoMemory,
-  playSoundEffectFromFile,
+  playEffect,
 } from './soundEffects';
 import { startPiperTTSProcess, stopPiperTTSProcess } from './speak';
 import { startSseServer, stopSseServer } from './sseServer/manager';
@@ -31,7 +31,7 @@ async function main() {
     startPiperTTSProcess();
 
     // play startup sound from file (not loaded into memory)
-    playSoundEffectFromFile(FileSoundEffect.STARTUP);
+    playEffect(FileSoundEffect.STARTUP);
 
     // start the listening loop
     await listen(handleAudioData);

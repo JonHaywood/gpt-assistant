@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handleAudioData } from './assistantRunner';
 import { Assistant } from './assistant';
-import { playEffect, SoundEffect } from './soundEffects';
+import { playEffect, InMemorySoundEffect } from './soundEffects';
 import { detectWakeword } from './wakeword';
 import { type AudioBuffer } from './listener.types';
 
@@ -13,12 +13,15 @@ vi.mock('./assistant', () => ({
   },
 }));
 
-vi.mock('./soundEffects', () => ({
-  playEffect: vi.fn(),
-  SoundEffect: {
-    BEEP: 'beep',
-  },
-}));
+vi.mock('./soundEffects', async (importOriginal) => {
+  const originalModule = await importOriginal<
+    typeof import('./soundEffects')
+  >();
+  return {
+    ...originalModule,
+    playEffect: vi.fn(),
+  };
+});
 
 vi.mock('./wakeword', () => ({
   detectWakeword: vi.fn(),
@@ -38,7 +41,7 @@ describe('handleAudioData', () => {
     await handleAudioData(mockFrame);
 
     expect(detectWakeword).toHaveBeenCalledWith(mockFrame);
-    expect(playEffect).toHaveBeenCalledWith(SoundEffect.BEEP);
+    expect(playEffect).toHaveBeenCalledWith(InMemorySoundEffect.BEEP);
     expect(Assistant.stopRunningAssistant).toHaveBeenCalled();
     expect(Assistant.startNewAssistant).toHaveBeenCalledWith(mockFrame);
     expect(Assistant.getRunninngInstance).not.toHaveBeenCalled();
