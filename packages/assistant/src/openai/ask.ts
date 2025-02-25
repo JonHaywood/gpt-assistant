@@ -11,8 +11,11 @@ import { tools } from './tools';
 
 const logger = parentLogger.child({ filename: 'ask' });
 
-const GENERIC_ERROR_RESPONSE =
+export const GENERIC_ERROR_RESPONSE =
   "I'm sorry, I ran into an issue. Please try again.";
+
+export const CONTENT_FILTER_ERROR_RESPONSE =
+  "I'm sorry, I can't respond to that.";
 
 /**
  * Queries the ChatGPT model with the given question and returns the response.
@@ -32,6 +35,7 @@ export async function askLLM(question: string): Promise<string> {
     let response: string | null = null;
 
     // wait for assistant to complete (there may be tool calls to execute)
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const completion = await openai.chat.completions.create({
         model: OpenAIModel,
@@ -75,7 +79,11 @@ export async function askLLM(question: string): Promise<string> {
       logger.trace(`🛠️ ChatGPT running tool: ${toolCall.function.name}`);
       const toolResponse = await tools.runTool(toolCall.function);
       logger.trace(
-        `🛠️ ChatGPT tool response: ${toolResponse.length > 200 ? toolResponse.slice(0, 200) + '...' : toolResponse}`,
+        `🛠️ ChatGPT tool response: ${
+          toolResponse.length > 200
+            ? toolResponse.slice(0, 200) + '...'
+            : toolResponse
+        }`,
       );
 
       // provide the tool response back to the LLM
@@ -147,7 +155,7 @@ function handleTerminatingFinishReason(completion: ChatCompletion): {
     );
     return {
       isFinished: true,
-      terminatingMessage: "I'm sorry, I can't respond to that.",
+      terminatingMessage: CONTENT_FILTER_ERROR_RESPONSE,
     };
   }
 

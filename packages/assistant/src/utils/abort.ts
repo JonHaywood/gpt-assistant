@@ -4,6 +4,7 @@ export class AbortError extends Error {
   constructor() {
     super(AbortErrorMessage);
     this.name = 'AbortError';
+    Object.setPrototypeOf(this, AbortError.prototype);
   }
 }
 
